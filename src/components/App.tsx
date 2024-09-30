@@ -10,8 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { firestore } from "../config/firebase";
 import { peerConnection } from "../config/store";
-import Button from "./ui/Button";
-import Input from "./ui/Input";
+import LandingComponent from "./ui/Landing";
 
 function App() {
   const [localStream, setLocalStream] = useState<MediaStream>();
@@ -69,7 +68,8 @@ function App() {
     }
   };
 
-  const createCall = async () => {
+  const createCall =
+   async () => {
     pushLocalStreamToConnection();
 
     // Reference firestore collection
@@ -185,41 +185,7 @@ function App() {
     }
   };
 
-  return (
-    <div className="h-screen">
-      <div
-        id="video-container"
-        className="flex flex-wrap justify-between content-center mt-12"
-      >
-        <div className="w-1/2 p-5">
-          <video
-            ref={localVideoRef}
-            className="h-full w-full bg-black rounded-lg"
-            autoPlay
-            muted
-            playsInline
-          />
-          <Button onClick={getMediaStreams}>Webcam</Button>
-          <Button onClick={createCall}>Call</Button>
-        </div>
-        <div className="w-1/2 p-5">
-          <video
-            ref={remoteVideoRef}
-            className="h-full w-full bg-black rounded-lg"
-            autoPlay
-            muted
-            playsInline
-          />
-          <Button onClick={answerCall}>Answer</Button>
-          <Button onClick={() => {}}>Hang up</Button>
-          <Input
-            value={callInput}
-            onChange={(e) => setCallInput(e.target.value)}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return <LandingComponent />
 }
 
 export default App;
