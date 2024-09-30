@@ -1,15 +1,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import firebase from "firebase/compat/app";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "call-buddy-863f5.firebaseapp.com",
   projectId: "call-buddy-863f5",
   storageBucket: "call-buddy-863f5.appspot.com",
