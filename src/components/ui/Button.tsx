@@ -1,15 +1,43 @@
-import { ReactElement } from "react";
+import { ReactNode } from "react";
 
-interface ButtonProps {
-  children: ReactElement | string;
-  onClick: () => void;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode;
+  variant?: "fill" | "text";
 }
 
-function Button({ onClick, children }: Readonly<ButtonProps>) {
+function Button({
+  children,
+  className,
+  disabled,
+  variant,
+  ...rest
+}: Readonly<ButtonProps>) {
+  if (variant === "text") {
+    return (
+      <button
+        className={
+          "bg-transparent py-4 px-4 rounded-2xl " +
+          (disabled
+            ? "text-neutral-500 cursor-not-allowed "
+            : "text-purple-500 hover:bg-purple-300 hover:bg-opacity-5 ") +
+          { ...rest }
+        }
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <button
-      onClick={onClick}
-      className="rounded-lg p-3 bg-purple-400 text-white"
+      className={
+        "flex items-center text-white font-bold py-3 px-5 min-w-20 rounded-2xl justify-center " +
+        (disabled
+          ? "bg-slate-500 cursor-not-allowed "
+          : "bg-purple-600 hover:bg-purple-700 ") +
+        (className || "")
+      }
+      {...rest}
     >
       {children}
     </button>

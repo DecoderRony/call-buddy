@@ -10,9 +10,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { firestore } from "../config/firebase";
 import { peerConnection } from "../config/store";
-import LandingComponent from "./ui/Landing";
+import LandingPage from "./LandingPage";
 
-function App() {
+function CallPage() {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [callInput, setCallInput] = useState<string>("");
@@ -68,8 +68,7 @@ function App() {
     }
   };
 
-  const createCall =
-   async () => {
+  const createCall = async () => {
     pushLocalStreamToConnection();
 
     // Reference firestore collection
@@ -185,7 +184,7 @@ function App() {
     }
   };
 
-  return <LandingComponent />
+  return <LandingPage />;
 }
 
-export default App;
+export default CallPage;
