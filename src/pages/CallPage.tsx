@@ -10,12 +10,15 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { firestore } from "../config/firebase";
 import { peerConnection } from "../config/store";
-import LandingPage from "./LandingPage";
+import {FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhoneSlash} from "react-icons/fa6";
+import Button from "../components/ui/Button";
 
 function CallPage() {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [callInput, setCallInput] = useState<string>("");
+  const [isMicEnable, setIsMicEnable] = useState(true);
+  const [isCamEnable, setIsCamEnable] = useState(true);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -184,7 +187,35 @@ function CallPage() {
     }
   };
 
-  return <LandingPage />;
+  return <div className="h-dvh relative">
+    <div className="h-full">
+      <div className="h-[90%] py-3">
+        <div className="bg-zinc-700 h-full mx-36 rounded-md">
+          client video
+        </div>
+      </div>
+
+      <div className="w-[40%] h-[30%] absolute py-3 bottom-[12%] right-[1%]">
+        <div className="bg-zinc-500 h-full mx-36 rounded-md">
+          client video
+        </div>
+      </div>
+
+      <div className="h-[10%] flex justify-center py-3">
+        <Button onClick={() => setIsMicEnable((prev) => !prev)} variant="rounded" className={isMicEnable ? 'bg-zinc-800 hover:bg-zinc-600' : 'bg-red-100 hover:bg-red-200'}>
+          {isMicEnable ? <FaMicrophone /> : <FaMicrophoneSlash className="text-red-800" />}
+        </Button>
+
+        <Button onClick={() => setIsCamEnable((prev) => !prev)} variant="rounded" className={`ml-2 ${isCamEnable ? 'bg-zinc-800 hover:bg-zinc-600' : 'bg-red-100 hover:bg-red-200'}`}>
+          {isCamEnable ? <FaVideo /> : <FaVideoSlash className="text-red-800" />}
+        </Button>
+
+        <Button className="ml-2 rounded-3xl bg-red-800 hover:bg-red-700">
+          <FaPhoneSlash />
+        </Button>
+      </div>
+    </div>
+  </div>;
 }
 
 export default CallPage;
