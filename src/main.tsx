@@ -8,7 +8,7 @@ import "./index.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <CallPage />,
+    element: <LandingPage />,
   },
   {
     path: "/call/:callId",
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+  // <StrictMode>
+  <RouterProvider router={router} />
+  // </StrictMode>
 );

@@ -6,4 +6,6 @@ const stunServers = {
   ],
 };
 
-export const peerConnection = new RTCPeerConnection(stunServers);
+export const getRTCPeerConnection = () => {
+  return new RTCPeerConnection(stunServers);
+};

@@ -19,25 +19,25 @@ function Button({
           "bg-transparent py-4 px-4 rounded-2xl " +
           (disabled
             ? "text-neutral-500 cursor-not-allowed "
-            : "text-purple-500 hover:bg-purple-300 hover:bg-opacity-5 ")
-          }
-          { ...rest }
+            : "text-purple-500 hover:bg-purple-300 hover:bg-opacity-5 ") +
+          (className ?? "")
+        }
+        {...rest}
       >
         {children}
       </button>
     );
-  }
-
-  else if(variant === "rounded"){
+  } else if (variant === "rounded") {
     return (
       <button
         className={
           "flex items-center justify-center py-4 px-4 rounded-full duration-300 " +
           (disabled
             ? "bg-slate-500 cursor-not-allowed "
-          : "bg-purple-600 hover:bg-purple-700 ") + (className ?? "") 
-          }
-          { ...rest }
+            : "bg-purple-600 hover:bg-purple-700 ") +
+          (className ?? "")
+        }
+        {...rest}
       >
         {children}
       </button>
@@ -51,7 +51,7 @@ function Button({
         (disabled
           ? "bg-slate-500 cursor-not-allowed "
           : "bg-purple-600 hover:bg-purple-700 ") +
-        (className || "")
+        (className ?? "")
       }
       {...rest}
     >
