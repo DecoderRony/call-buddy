@@ -12,10 +12,14 @@ function Button({
   variant,
   ...rest
 }: Readonly<ButtonProps>) {
+  const buttonDefaultStyles =
+    "h-12 flex items-center justify-center py-3 px-5 font-bold";
+
   if (variant === "text") {
     return (
       <button
         className={
+          buttonDefaultStyles +
           "bg-transparent py-4 px-4 rounded-2xl " +
           (disabled
             ? "text-neutral-500 cursor-not-allowed "
@@ -47,7 +51,8 @@ function Button({
   return (
     <button
       className={
-        "flex items-center text-white duration-300 font-bold py-3 px-5 min-w-20 rounded-2xl justify-center " +
+        buttonDefaultStyles +
+        "text-white duration-300 min-w-20 rounded-2xl " +
         (disabled
           ? "bg-slate-500 cursor-not-allowed "
           : "bg-purple-600 hover:bg-purple-700 ") +
