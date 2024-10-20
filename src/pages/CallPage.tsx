@@ -26,6 +26,7 @@ import {
 } from "react-icons/fa6";
 import { MdContentCopy } from "react-icons/md";
 
+
 function CallPage() {
   const { callId } = useParams();
   const navigate = useNavigate();
@@ -59,6 +60,11 @@ function CallPage() {
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<{ [id: string]: HTMLVideoElement }>({}); // Store refs for each remote participant's video
+  // store parent container ref that holds all remote video elements
+  const parentVideoContainerRef = useRef<HTMLDivElement>(null);
+
+  let videoHeight = 0;
+  let videoWidth = 0;
 
   // console.log("participants", participants);
   // console.log("remote video refs", remoteVideoRefs);
@@ -459,7 +465,17 @@ function CallPage() {
   } else if (Object.keys(participants).length === 2) {
     gridClasses = "grid grid-cols-2 grid-rows-1";
   } else {
-    gridClasses = "grid grid-cols-2 grid-rows-2";
+    const rows = Math.ceil(Object.keys(participants).length / 2);
+    gridClasses = `grid grid-cols-2 grid-rows-[${rows}]`;
+    if(parentVideoContainerRef.current?.offsetWidth){
+      videoWidth = parentVideoContainerRef.current?.offsetWidth / 2
+    }
+
+    if(parentVideoContainerRef.current?.offsetHeight){
+      // calculating container height wrt to (total container height - (number of rows * gap space))
+      const containerHeight = parentVideoContainerRef.current.offsetHeight - ((rows < 1 ? 0 : rows - 1) * 12);
+      videoHeight = containerHeight / rows;
+    }
   }
 
   if (loading) {
@@ -542,17 +558,17 @@ function CallPage() {
         </span>
       </div>
 
-      <div className="flex-grow h-full">
-        <div className={"h-full pt-8 pb-3 px-16 gap-3 " + gridClasses}>
+      <div className="h-full overflow-hidden">
+        <div ref={parentVideoContainerRef} className={"h-full pt-8 pb-3 px-16 gap-3 " + gridClasses}>
           {Object.keys(participants).map((participantId) => (
             <div
               key={participantId}
-              className="mx-auto bg-zinc-700 h-full rounded-md overflow-hidden container"
+              className={"mx-auto container bg-zinc-700 h-full rounded-md overflow-hidden " + `w-[${videoWidth}px] h-[${videoHeight}px]`}
             >
               <video
                 ref={(el) => (remoteVideoRefs.current[participantId] = el!)}
                 autoPlay
-                className="w-full object-cover"
+                className="h-full w-full object-cover"
               />
               {!micEnabledParticipants[participantId] && <span>muted</span>}
               {!camEnabledParticipants[participantId] && <span>video off</span>}
@@ -560,8 +576,14 @@ function CallPage() {
           ))}
         </div>
 
-        <div className="absolute h-[25%] w-[25%] bottom-5 right-5 bg-zinc-500 rounded-md overflow-hidden">
-          <video ref={localVideoRef} autoPlay className="w-full object-cover" />
+        <div className="absolute h-[30%] w-[25%] bottom-5 right-5">
+          <div className="bg-zinc-500 h-full w-full rounded-md overflow-hidden">
+            <video
+              ref={localVideoRef}
+              autoPlay
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
 
         <div className="absolute h-12 w-full bottom-16 left-0 flex justify-center">
