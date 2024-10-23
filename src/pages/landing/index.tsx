@@ -1,13 +1,10 @@
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/Dialog";
-import { addDoc, collection } from "firebase/firestore";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaKeyboard } from "react-icons/fa";
-import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import { firestore } from "../config/firebase";
-import callService from "../lib/callService";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import callService from "../../lib/callService";
+import StartCall from "./StartCall";
 
 const getFormattedDateTime = () => {
   const currentDateObj = new Date();
@@ -36,13 +33,6 @@ const LandingPage = () => {
   const [callId, setCallId] = useState<string>("");
   const [currDateTime, setCurrDateTime] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [callName, setCallName] = useState("");
-
-  const startCall = async () => {
-    const callsCollection = collection(firestore, "calls");
-    const callDocument = await addDoc(callsCollection, { name: callName });
-    navigate(`/call/${callDocument.id}`);
-  };
 
   const joinCall = async () => {
     try {
@@ -92,40 +82,7 @@ const LandingPage = () => {
           </h1>
         </div>
         <div className="flex justify-center items-center">
-          <div className="">
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) setCallName("");
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button>
-                  <MdVideoCall size="1.5em" /> &nbsp; Start a call
-                </Button>
-              </DialogTrigger>
-              <DialogContent showCloseIcon={false} className="sm:max-w-[425px]">
-                <h3 className="text-2xl text-neutral-900 font-semibold">
-                  Start a new Call
-                </h3>
-                <label htmlFor="call-name" className="text-neutral-900 text-sm">
-                  Provide a name for your call so that your friends know what
-                  this call is about
-                </label>
-                <Input
-                  className="w-full"
-                  id="call-name"
-                  variant="light"
-                  value={callName}
-                  onChange={(e) => setCallName(e.target.value)}
-                />
-                <div id="footer" className="flex justify-center mt-2">
-                  <Button onClick={startCall} disabled={!callName}>
-                    Start Call
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <StartCall />
           <span className="text-gray-500 mx-6 text-sm font-semibold">or</span>
           <div className="flex gap-3">
             <Input
