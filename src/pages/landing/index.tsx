@@ -1,9 +1,5 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import { FaKeyboard } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import callService from "../../lib/callService";
+import { useEffect, useState } from "react";
+import JoinCall from "./JoinCall";
 import StartCall from "./StartCall";
 
 const getFormattedDateTime = () => {
@@ -27,41 +23,13 @@ const getFormattedDateTime = () => {
 };
 
 const LandingPage = () => {
-  const navigate = useNavigate();
-
-  // states
-  const [callId, setCallId] = useState<string>("");
   const [currDateTime, setCurrDateTime] = useState("");
-  const [buttonDisabled, setButtonDisabled] = useState(true);
-
-  const joinCall = async () => {
-    try {
-      if (await callService.callExists(callId)) {
-        navigate(`/call/${callId}`);
-      } else {
-        // TODO: Handle UI
-        console.log("Call does not exist");
-      }
-    } catch (err) {
-      // TODO: Handle UI
-      console.log("Error joining call. Please try again later", err);
-    }
-  };
 
   useEffect(() => {
     setInterval(() => {
       setCurrDateTime(getFormattedDateTime());
     }, 1000);
   }, []);
-
-  const handleChangeCallId = (event: ChangeEvent<HTMLInputElement>) => {
-    setCallId(event.target.value);
-    if (event.target.value.trim() === "") {
-      setButtonDisabled(true);
-    } else {
-      setButtonDisabled(false);
-    }
-  };
 
   return (
     <>
@@ -84,19 +52,7 @@ const LandingPage = () => {
         <div className="flex justify-center items-center">
           <StartCall />
           <span className="text-gray-500 mx-6 text-sm font-semibold">or</span>
-          <div className="flex gap-3">
-            <Input
-              value={callId}
-              type="text"
-              placeholder="Enter Call Id"
-              onChange={handleChangeCallId}
-              icon={<FaKeyboard size="1.5em" />}
-              variant="dark"
-            />
-            <Button onClick={joinCall} variant="text" disabled={buttonDisabled}>
-              Join
-            </Button>
-          </div>
+          <JoinCall />
         </div>
       </div>
     </>
