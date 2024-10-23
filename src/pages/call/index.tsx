@@ -12,6 +12,7 @@ function CallPage() {
   // Fetch gloal states and actions from store
   const joinedCall = useCallStore((state) => state.callId);
   const setJoinedCall = useCallStore((state) => state.setCallId);
+  const participantId = useCallStore((state) => state.participantId);
   const participants = useCallStore((state) => state.participants);
   const localStream = useCallStore((state) => state.localStream);
   const isMicEnabled = useCallStore((state) => state.isMicEnabled);
@@ -50,14 +51,10 @@ function CallPage() {
 
   useEffect(() => {
     const init = async () => {
-      // Get media access
-      if (!localStream) {
-        getLocalStream();
-      }
-
       // join call
       if (callId) {
         if (joinedCall) {
+          // TODO: Handle UI
           console.log("Already in a call. Cannot join another call");
           return;
         }
@@ -86,6 +83,12 @@ function CallPage() {
       // window.removeEventListener("beforeunload", cleanupOnUnload);
     };
   }, []);
+
+  useEffect(() => {
+    if (!localStream && participantId) {
+      getLocalStream();
+    }
+  }, [participantId]);
 
   let gridClasses;
   if (Object.keys(participants).length === 1) {

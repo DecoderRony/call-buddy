@@ -480,7 +480,12 @@ class CallService {
   public async setIsMicEnabled(isMicEnabled: boolean) {
     const setIsMicEnabled = useCallStore.getState().setIsMicEnabled;
     setIsMicEnabled(isMicEnabled);
+    console.log(
+      "updating mic status in DB if participant Doc exists",
+      isMicEnabled
+    );
     if (this.participantDoc) {
+      console.log("updating mic status in DB");
       await updateDoc(this.participantDoc, {
         isMicEnabled: isMicEnabled, // Update in Firebase
       });
@@ -490,7 +495,12 @@ class CallService {
   public async setIsCamEnabled(isCamEnabled: boolean) {
     const setIsCamEnabled = useCallStore.getState().setIsCamEnabled;
     setIsCamEnabled(isCamEnabled);
+    console.log(
+      "updating cam status in DB if participant Doc exists",
+      isCamEnabled
+    );
     if (this.participantDoc) {
+      console.log("updating cam status in DB");
       await updateDoc(this.participantDoc, {
         isCamEnabled: isCamEnabled, // Update in Firebase
       });
