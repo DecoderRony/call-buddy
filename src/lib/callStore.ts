@@ -5,6 +5,9 @@ interface CallStore {
   callId: string | null;
   setCallId: (callId: string | null) => void;
   clearCallId: () => void;
+  callName: string | null;
+  setCallName: (callName: string | null) => void;
+  clearCallName: () => void;
   participantId: string | null;
   setParticipantId: (participantId: string) => void;
   participants: Record<
@@ -40,6 +43,10 @@ export const useCallStore = create<CallStore>()(
     callId: null,
     setCallId: (callId) => set({ callId }),
     clearCallId: () => set({ callId: null }),
+
+    callName: null,
+    setCallName: (callName) => set({ callName }),
+    clearCallName: () => set({ callName: null }),
 
     participantId: null,
     setParticipantId: (participantId) => set({ participantId }),

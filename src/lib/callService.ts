@@ -512,6 +512,7 @@ class CallService {
     const isMicEnabled = useCallStore.getState().isMicEnabled;
     const isCamEnabled = useCallStore.getState().isCamEnabled;
     const setCallId = useCallStore.getState().setCallId;
+    const setCallName = useCallStore.getState().setCallName;
     const setParticipantId = useCallStore.getState().setParticipantId;
 
     // Initialize firebase references
@@ -520,6 +521,17 @@ class CallService {
     let participantDoc: DocumentReference | null = null;
 
     try {
+      const callData = await getDoc(callDocument);
+
+      // Retrieve call name
+      if (callData.get("name")) {
+        setCallId(callId);
+        setCallName(callData.get("name"));
+      } else {
+        throw new Error("Call name not found");
+      }
+
+      // Add participant in the call
       const timeStamp = Date.now();
       participantDoc = await addDoc(participantsCollection, {
         timeStamp,
@@ -527,12 +539,10 @@ class CallService {
         isCamEnabled: isCamEnabled,
       });
 
-      console.log("joining call. self id", participantDoc.id);
+      // Initialize call instance values
       this.participantsCollection = participantsCollection;
       this.participantDoc = participantDoc;
       this.timeStamp = timeStamp;
-
-      setCallId(callId);
       setParticipantId(participantDoc.id);
 
       // listen for participants in the call
@@ -554,6 +564,7 @@ class CallService {
         }
       );
     } catch (err) {
+      // TODO: Handle UI
       console.log("Could not join the call. Please try again later");
     }
   }

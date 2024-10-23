@@ -11,7 +11,6 @@ function CallPage() {
 
   // Fetch gloal states and actions from store
   const joinedCall = useCallStore((state) => state.callId);
-  const setJoinedCall = useCallStore((state) => state.setCallId);
   const participantId = useCallStore((state) => state.participantId);
   const participants = useCallStore((state) => state.participants);
   const localStream = useCallStore((state) => state.localStream);
@@ -62,7 +61,6 @@ function CallPage() {
         try {
           if (await callService.callExists(callId)) {
             callService.joinCall(callId);
-            setJoinedCall(callId);
           } else {
             // TODO: Handle UI
             console.log("Call with given callId does not exist");
