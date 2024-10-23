@@ -22,8 +22,8 @@ function Button({
           buttonDefaultStyles +
           "bg-transparent py-4 px-4 rounded-2xl " +
           (disabled
-            ? "text-neutral-500 cursor-not-allowed "
-            : "text-purple-500 hover:bg-purple-300 hover:bg-opacity-5 ") +
+            ? "text-neutral-500 hover:cursor-not-allowed "
+            : "text-purple-500 hover:bg-purple-300 hover:bg-opacity-5 hover:cursor-pointer ") +
           (className ?? "")
         }
         {...rest}
@@ -37,8 +37,8 @@ function Button({
         className={
           "flex items-center justify-center py-4 px-4 rounded-full duration-300 " +
           (disabled
-            ? "bg-slate-500 cursor-not-allowed "
-            : "bg-purple-600 hover:bg-purple-700 ") +
+            ? "bg-slate-500 hover:cursor-not-allowed "
+            : "bg-purple-600 hover:bg-purple-700 hover:cursor-pointer ") +
           (className ?? "")
         }
         {...rest}
@@ -54,8 +54,8 @@ function Button({
         buttonDefaultStyles +
         "text-white duration-300 min-w-20 rounded-2xl " +
         (disabled
-          ? "bg-slate-500 cursor-not-allowed "
-          : "bg-purple-600 hover:bg-purple-700 ") +
+          ? "bg-slate-500 hover:cursor-not-allowed "
+          : "bg-purple-600 hover:bg-purple-700 hover:cursor-pointer ") +
         (className ?? "")
       }
       {...rest}

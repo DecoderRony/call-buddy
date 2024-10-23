@@ -1,16 +1,11 @@
-import {
-  DocumentReference,
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaKeyboard } from "react-icons/fa";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
+import callService from "../callService";
+import Button from "../components/Button";
+import Input from "../components/Input";
 import { firestore } from "../config/firebase";
 
 const getFormattedDateTime = () => {
@@ -41,32 +36,23 @@ const LandingPage = () => {
   const [currDateTime, setCurrDateTime] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
-  // Update ICE candidates in database
-  const updateIceCandidatesInDB = (
-    peerConnection: RTCPeerConnection,
-    participantDocument: DocumentReference
-  ) => {
-    const iceCandidates = collection(participantDocument, "iceCandidates");
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        addDoc(iceCandidates, event.candidate.toJSON());
-      }
-    };
-  };
-
   const startCall = async () => {
-    const callDocument = await addDoc(collection(firestore, "calls"), {});
+    const callsCollection = collection(firestore, "calls");
+    const callDocument = await addDoc(callsCollection, {});
     navigate(`/call/${callDocument.id}`);
   };
 
   const joinCall = async () => {
-    const callDocument = doc(firestore, "calls", callId);
-    const callSnap = await getDoc(callDocument);
-
-    if (callSnap.exists()) {
-      navigate(`/call/${callDocument.id}`);
-    } else {
-      console.log("Call does not exist");
+    try {
+      if (await callService.callExists(callId)) {
+        navigate(`/call/${callId}`);
+      } else {
+        // TODO: Handle UI
+        console.log("Call does not exist");
+      }
+    } catch (err) {
+      // TODO: Handle UI
+      console.log("Error joining call. Please try again later", err);
     }
   };
 
