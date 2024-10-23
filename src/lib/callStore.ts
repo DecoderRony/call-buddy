@@ -10,9 +10,12 @@ interface CallStore {
   clearCallName: () => void;
   participantId: string | null;
   setParticipantId: (participantId: string) => void;
+  participantName: string | null;
+  setParticipantName: (participantName: string) => void;
   participants: Record<
     string,
     {
+      name: string | null;
       connection: RTCPeerConnection;
       stream: MediaStream;
       isMicEnabled: boolean;
@@ -24,6 +27,7 @@ interface CallStore {
     connection: RTCPeerConnection
   ) => void;
   addParticipantStream: (participantId: string, stream: MediaStream) => void;
+  addParticipantName: (participantId: string, name: string) => void;
   removeParticipant: (participantId: string) => void;
   removeAllParticipants: () => void;
   setParticipantMic: (participantId: string, isMicEnabled: boolean) => void;
@@ -51,6 +55,9 @@ export const useCallStore = create<CallStore>()(
     participantId: null,
     setParticipantId: (participantId) => set({ participantId }),
 
+    participantName: null,
+    setParticipantName: (participantName) => set({ participantName }),
+
     participants: {},
     addParticipantConnection: (participantId, connection) =>
       set((state) => ({
@@ -72,6 +79,19 @@ export const useCallStore = create<CallStore>()(
           },
         },
       })),
+    addParticipantName: (participantId, name) =>
+      set((state) => {
+        if (!state.participants[participantId]) return state;
+        return {
+          participants: {
+            ...state.participants,
+            [participantId]: {
+              ...state.participants[participantId],
+              name,
+            },
+          },
+        };
+      }),
     removeParticipant: (participantId) =>
       set((state) => {
         const { [participantId]: _, ...remainingParticipants } =

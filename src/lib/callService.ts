@@ -20,7 +20,7 @@ let instance: CallService;
 class CallService {
   private participantsCollection: CollectionReference | undefined;
   private participantDoc: DocumentReference | undefined;
-  private timeStamp: number | null = null;
+  private joinedAt: number | null = null;
 
   private unsubscribeParticipantsListener: (() => void) | undefined;
   private unsubscribeOffersListener: (() => void) | undefined;
@@ -94,7 +94,7 @@ class CallService {
   }
 
   private async handleParticipantJoined(otherParticipant: DocumentChange) {
-    if (!this.participantDoc || !this.timeStamp) {
+    if (!this.participantDoc || !this.joinedAt) {
       return;
     }
 
@@ -223,12 +223,13 @@ class CallService {
       return;
     }
 
-    // get states and actions from the store
+    // get states and actions from the storesetParticipantM
     const participants = useCallStore.getState().participants;
     const addParticipantConnection =
       useCallStore.getState().addParticipantConnection;
     const setParticipantMic = useCallStore.getState().setParticipantMic;
     const setParticipantCam = useCallStore.getState().setParticipantCam;
+    const addParticipantName = useCallStore.getState().addParticipantName;
 
     const otherParticipantId = otherParticipant.doc.id;
 
@@ -256,6 +257,9 @@ class CallService {
         otherParticipantId,
         otherParticipantData?.isCamEnabled || true
       );
+      if (!participants[otherParticipantId].name) {
+        addParticipantName(otherParticipantId, otherParticipantData?.name);
+      }
     }
 
     console.log(
@@ -406,18 +410,18 @@ class CallService {
           const participants = useCallStore.getState().participants;
           const setParticipantMic = useCallStore.getState().setParticipantMic;
           const setParticipantCam = useCallStore.getState().setParticipantCam;
+          const addParticipantName = useCallStore.getState().addParticipantName;
 
           const otherParticipantId = otherParticipant.doc.id;
           const otherParticipantData = otherParticipant.doc.data();
 
-          if (!this.timeStamp || !this.participantDoc) {
+          if (!this.joinedAt || !this.participantDoc) {
             return;
           }
 
           const isSelfDocumentInChange =
             otherParticipantId === this.participantDoc.id;
-          const isNewParticpant =
-            otherParticipantData.timeStamp > this.timeStamp;
+          const isNewParticpant = otherParticipantData.joinedAt > this.joinedAt;
           const connectionAlreadyExists = participants[otherParticipantId];
 
           // Handle if a participant leaves the call
@@ -452,6 +456,12 @@ class CallService {
               otherParticipantId,
               otherParticipantData.isCamEnabled
             );
+            if (!participants[otherParticipantId].name) {
+              addParticipantName(
+                otherParticipantId,
+                otherParticipantData?.name
+              );
+            }
           }
         });
       }
@@ -511,6 +521,7 @@ class CallService {
     // get states and actions from the store
     const isMicEnabled = useCallStore.getState().isMicEnabled;
     const isCamEnabled = useCallStore.getState().isCamEnabled;
+    const participantName = useCallStore.getState().participantName;
     const setCallId = useCallStore.getState().setCallId;
     const setCallName = useCallStore.getState().setCallName;
     const setParticipantId = useCallStore.getState().setParticipantId;
@@ -532,9 +543,10 @@ class CallService {
       }
 
       // Add participant in the call
-      const timeStamp = Date.now();
+      const joinedAt = Date.now();
       participantDoc = await addDoc(participantsCollection, {
-        timeStamp,
+        name: participantName,
+        joinedAt,
         isMicEnabled: isMicEnabled,
         isCamEnabled: isCamEnabled,
       });
@@ -542,7 +554,7 @@ class CallService {
       // Initialize call instance values
       this.participantsCollection = participantsCollection;
       this.participantDoc = participantDoc;
-      this.timeStamp = timeStamp;
+      this.joinedAt = joinedAt;
       setParticipantId(participantDoc.id);
 
       // listen for participants in the call

@@ -41,6 +41,7 @@ function ParticipantsVideos() {
           key={participantId}
           height={videoHeight}
           width={videoWidth}
+          name={participants[participantId].name}
           isMicEnabled={participants[participantId].isMicEnabled}
           isCamEnabled={participants[participantId].isCamEnabled}
         />

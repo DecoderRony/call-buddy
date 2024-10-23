@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 function SelfVideo() {
   const participantId = useCallStore((state) => state.participantId);
+  const participantName = useCallStore((state) => state.participantName);
   const localStream = useCallStore((state) => state.localStream);
   const isMicEnabled = useCallStore((state) => state.isMicEnabled);
   const isCamEnabled = useCallStore((state) => state.isCamEnabled);
@@ -35,6 +36,7 @@ function SelfVideo() {
   return (
     <div className="absolute h-[30%] w-[25%] bottom-5 right-5">
       <Video
+        name={participantName}
         stream={localStream}
         isMicEnabled={isMicEnabled}
         isCamEnabled={isCamEnabled}
