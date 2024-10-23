@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useCallStore } from "../../lib/callStore";
-import Button from "../../components/Button";
+import Button from "../../components/ui/Button";
 import callService from "../../lib/callService";
 
 function CallControl() {

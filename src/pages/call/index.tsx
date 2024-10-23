@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useCallStore } from "../../lib/callStore";
 import CallControl from "./CallControl";
 import CallInfo from "./CallInfo";
-import Video from "../../components/Video";
+import Video from "../../components/ui/Video";
 import callService from "../../lib/callService";
 
 function CallPage() {

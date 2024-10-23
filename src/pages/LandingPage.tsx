@@ -4,8 +4,8 @@ import { FaKeyboard } from "react-icons/fa";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import callService from "../lib/callService";
-import Button from "../components/Button";
-import Input from "../components/Input";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
 import { firestore } from "../config/firebase";
 
 const getFormattedDateTime = () => {
