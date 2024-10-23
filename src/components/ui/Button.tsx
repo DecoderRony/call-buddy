@@ -37,7 +37,7 @@ function Button({
         className={
           "flex items-center justify-center py-4 px-4 rounded-full duration-300 " +
           (disabled
-            ? "bg-slate-500 hover:cursor-not-allowed "
+            ? "bg-purple-600 opacity-30 hover:cursor-not-allowed "
             : "bg-purple-600 hover:bg-purple-700 hover:cursor-pointer ") +
           (className ?? "")
         }
@@ -54,7 +54,7 @@ function Button({
         buttonDefaultStyles +
         "text-white duration-300 min-w-20 rounded-2xl " +
         (disabled
-          ? "bg-slate-500 hover:cursor-not-allowed "
+          ? "bg-purple-600 opacity-30 hover:cursor-not-allowed "
           : "bg-purple-600 hover:bg-purple-700 hover:cursor-pointer ") +
         (className ?? "")
       }
