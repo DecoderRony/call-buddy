@@ -41,6 +41,7 @@ function CallControl() {
 
   return (
     <div className="flex justify-center">
+      {/* Mic control */}
       <Button
         onClick={toggleMic}
         variant="rounded"
@@ -57,6 +58,7 @@ function CallControl() {
         )}
       </Button>
 
+      {/* Cam control */}
       <Button
         onClick={toggleCam}
         variant="rounded"
@@ -69,6 +71,7 @@ function CallControl() {
         {isCamEnabled ? <FaVideo /> : <FaVideoSlash className="text-red-800" />}
       </Button>
 
+      {/* End call control */}
       <Button
         variant="rounded"
         className="h-16 w-16 ml-2 bg-red-800 hover:bg-red-700"

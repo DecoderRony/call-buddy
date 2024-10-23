@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/Dialog";
 import Input from "@/components/ui/Input";
 import { firestore } from "@/config/firebase";
 import { addDoc, collection } from "firebase/firestore";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,8 @@ function StartCall() {
   const navigate = useNavigate();
   const [callName, setCallName] = useState("");
 
-  const startCall = async () => {
+  const startCall = async (e: FormEvent) => {
+    e.preventDefault();
     const callsCollection = collection(firestore, "calls");
     const callDocument = await addDoc(callsCollection, { name: callName });
     navigate(`/call/${callDocument.id}`);
@@ -32,22 +33,24 @@ function StartCall() {
         <h3 className="text-2xl text-neutral-900 font-semibold">
           Start a new Call
         </h3>
-        <label htmlFor="call-name" className="text-neutral-900 text-sm">
-          Provide a name for your call so that your friends know what this call
-          is about
-        </label>
-        <Input
-          className="w-full"
-          id="call-name"
-          variant="light"
-          value={callName}
-          onChange={(e) => setCallName(e.target.value)}
-        />
-        <div id="footer" className="flex justify-center mt-2">
-          <Button onClick={startCall} disabled={!callName}>
-            Start Call
-          </Button>
-        </div>
+        <form onSubmit={startCall} className="flex flex-col gap-4">
+          <label htmlFor="call-name" className="text-neutral-900 text-sm">
+            Provide a name for your call so that your friends know what this
+            call is about
+          </label>
+          <Input
+            className="w-full"
+            id="call-name"
+            variant="light"
+            value={callName}
+            onChange={(e) => setCallName(e.target.value)}
+          />
+          <div id="footer" className="flex justify-center mt-2">
+            <Button type="submit" disabled={!callName}>
+              Start Call
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
