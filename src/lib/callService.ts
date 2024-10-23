@@ -12,8 +12,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useCallStore } from "./callStore";
-import { firestore } from "./config/firebase";
-import { createDummyMediaStream, getRTCPeerConnection } from "./utils/webrtc";
+import { firestore } from "../config/firebase";
+import { createDummyMediaStream, getRTCPeerConnection } from "./utils";
 
 let instance: CallService;
 

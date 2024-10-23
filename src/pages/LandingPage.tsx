@@ -3,7 +3,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { FaKeyboard } from "react-icons/fa";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import callService from "../callService";
+import callService from "../lib/callService";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { firestore } from "../config/firebase";

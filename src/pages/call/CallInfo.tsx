@@ -1,5 +1,5 @@
 import { MdContentCopy } from "react-icons/md";
-import { useCallStore } from "../../callStore";
+import { useCallStore } from "../../lib/callStore";
 
 function CallInfo() {
   const callId = useCallStore((state) => state.callId);
