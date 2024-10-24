@@ -1,42 +1,41 @@
+import { showToast } from "@/components/functions/Toast";
 import Button from "@/components/ui/Button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/Dialog";
 import Input from "@/components/ui/Input";
-import { firestore } from "@/config/firebase";
-import { useCallStore } from "@/lib/callStore";
-import { addDoc, collection } from "firebase/firestore";
+import callService from "@/lib/callService";
 import { FormEvent, useState } from "react";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 function StartCall() {
   const navigate = useNavigate();
-  const setParticipantName = useCallStore((state) => state.setParticipantName);
-  const [userName, setUserName] = useState("");
   const [callName, setCallName] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const startCall = async (e: FormEvent) => {
+    e.preventDefault();
     try {
-      e.preventDefault();
-      const callsCollection = collection(firestore, "calls");
-      const callDocument = await addDoc(callsCollection, {
-        name: callName,
-        createdAt: Date.now(),
-      });
-      setParticipantName(userName.trim());
-      navigate(`/call/${callDocument.id}`);
+      const callId = await callService.createCall(callName);
+      navigate(`/call/${callId}`);
     } catch (e) {
-      // TODO: handle UI
-      console.log("cannot start call");
+      setIsDialogOpen(false);
+      setCallName("");
+      showToast({
+        title: "Error creating call",
+        description: "Looks like something went wrong. Please try again later.",
+        isError: true,
+      });
     }
   };
 
   return (
     <Dialog
+      open={isDialogOpen}
       onOpenChange={(open) => {
         if (!open) {
           setCallName("");
-          setUserName("");
         }
+        setIsDialogOpen(open);
       }}
     >
       <DialogTrigger asChild>
@@ -63,24 +62,8 @@ function StartCall() {
               onChange={(e) => setCallName(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="user-name" className="text-neutral-900 text-sm">
-              What should we call you?
-            </label>
-            <Input
-              className="w-full"
-              id="user-name"
-              variant="light"
-              placeholder="Enter your name"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-            />
-          </div>
           <div id="footer" className="flex justify-center mt-2">
-            <Button
-              type="submit"
-              disabled={!callName.trim() || !userName.trim()}
-            >
+            <Button type="submit" disabled={!callName.trim()}>
               Start Call
             </Button>
           </div>

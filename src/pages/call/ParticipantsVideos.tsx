@@ -1,4 +1,4 @@
-import Video from "@/components/ui/Video";
+import UserVideo from "@/components/functions/UserVideo";
 import { useCallStore } from "@/lib/callStore";
 import { useRef } from "react";
 
@@ -36,7 +36,7 @@ function ParticipantsVideos() {
       className={"h-full pt-8 pb-3 px-16 gap-3 " + gridClasses}
     >
       {Object.keys(participants).map((participantId) => (
-        <Video
+        <UserVideo
           stream={participants[participantId].stream}
           key={participantId}
           height={videoHeight}

@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import "./index.css";
 import CallPage from "./pages/call";
 import LandingPage from "./pages/landing";
+import { Toaster } from "./components/ui/sonner";
 
 const router = createBrowserRouter([
   {
@@ -16,5 +17,8 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <RouterProvider router={router} />
+  <div id="app-container" className="h-dvh">
+    <RouterProvider router={router} />
+    <Toaster position="bottom-center" richColors duration={6000} />
+  </div>
 );

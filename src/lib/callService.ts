@@ -476,16 +476,51 @@ class CallService {
   }
 
   // --------------------------- Public methods --------------------------------- //
-  public async callExists(callId: string) {
-    const callDoc = doc(firestore, "calls", callId);
+  public async callExists(id: string) {
+    const callId = useCallStore.getState().callId;
+    if (callId) {
+      return true;
+    }
+
+    const callDoc = doc(firestore, "calls", id);
     const callSnap = await getDoc(callDoc);
-    return callSnap.exists();
+
+    if (callSnap.exists()) {
+      const setCallId = useCallStore.getState().setCallId;
+      const setCallName = useCallStore.getState().setCallName;
+
+      setCallId(id);
+      setCallName(callSnap.data().name);
+      return true;
+    }
+    return false;
   }
 
-  public updateLocalStream(localStream: MediaStream | null) {
-    const setLocalStream = useCallStore.getState().setLocalStream;
-    setLocalStream(localStream);
-  }
+  public getLocalStream = async () => {
+    try {
+      const setLocalStream = useCallStore.getState().setLocalStream;
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      setLocalStream(stream);
+      this.setIsMicEnabled(true);
+      this.setIsCamEnabled(true);
+    } catch (error: any) {
+      if (error.name === "NotAllowedError") {
+        return {
+          error: true,
+          type: "ACCESS_DENIED",
+        };
+      } else {
+        return {
+          error: true,
+          type: "NOT_FOUND",
+        };
+      }
+    }
+  };
 
   public async setIsMicEnabled(isMicEnabled: boolean) {
     const setIsMicEnabled = useCallStore.getState().setIsMicEnabled;
@@ -517,13 +552,26 @@ class CallService {
     }
   }
 
+  public async createCall(callName: string) {
+    const setCallId = useCallStore.getState().setCallId;
+    const setCallName = useCallStore.getState().setCallName;
+
+    const callsCollection = collection(firestore, "calls");
+    const callDocument = await addDoc(callsCollection, {
+      name: callName,
+      createdAt: Date.now(),
+    });
+
+    setCallId(callDocument.id);
+    setCallName(callName);
+    return callDocument.id;
+  }
+
   public async joinCall(callId: string) {
     // get states and actions from the store
     const isMicEnabled = useCallStore.getState().isMicEnabled;
     const isCamEnabled = useCallStore.getState().isCamEnabled;
     const participantName = useCallStore.getState().participantName;
-    const setCallId = useCallStore.getState().setCallId;
-    const setCallName = useCallStore.getState().setCallName;
     const setParticipantId = useCallStore.getState().setParticipantId;
 
     // Initialize firebase references
@@ -532,16 +580,6 @@ class CallService {
     let participantDoc: DocumentReference | null = null;
 
     try {
-      const callData = await getDoc(callDocument);
-
-      // Retrieve call name
-      if (callData.get("name")) {
-        setCallId(callId);
-        setCallName(callData.get("name"));
-      } else {
-        throw new Error("Call name not found");
-      }
-
       // Add participant in the call
       const joinedAt = Date.now();
       participantDoc = await addDoc(participantsCollection, {
@@ -584,7 +622,10 @@ class CallService {
   public endCall() {
     const callId = useCallStore.getState().callId;
     const setCallId = useCallStore.getState().setCallId;
+    const setCallName = useCallStore.getState().setCallName;
     const participantId = useCallStore.getState().participantId;
+    const setParticipantId = useCallStore.getState().setParticipantId;
+    const setParticipantName = useCallStore.getState().setParticipantName;
     const participants = useCallStore.getState().participants;
     const localStream = useCallStore.getState().localStream;
     const setLocalStream = useCallStore.getState().setLocalStream;
@@ -625,6 +666,9 @@ class CallService {
     // 5. Reset the state and UI
     setLocalStream(null);
     setCallId(null);
+    setCallName(null);
+    setParticipantId(null);
+    setParticipantName(null);
   }
 }
 

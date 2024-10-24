@@ -1,80 +1,22 @@
-import {
-  FaMicrophone,
-  FaMicrophoneSlash,
-  FaPhoneSlash,
-  FaVideo,
-  FaVideoSlash,
-} from "react-icons/fa6";
+import CamControl from "@/components/functions/CamControl";
+import MicControl from "@/components/functions/MicControl";
+import { FaPhoneSlash } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { useCallStore } from "../../lib/callStore";
 import Button from "../../components/ui/Button";
 import callService from "../../lib/callService";
 
 function CallControl() {
   const navigate = useNavigate();
 
-  const localStream = useCallStore((state) => state.localStream);
-  const isMicEnabled = useCallStore((state) => state.isMicEnabled);
-  const isCamEnabled = useCallStore((state) => state.isCamEnabled);
-
-  const toggleMic = async () => {
-    if (localStream) {
-      // Get the audio track from the local stream
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled; // Toggle mute/unmute
-        callService.setIsMicEnabled(audioTrack.enabled);
-      }
-    }
-  };
-
-  const toggleCam = async () => {
-    if (localStream) {
-      // Get the video track from the local stream
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled; // Toggle mute/unmute
-        callService.setIsCamEnabled(videoTrack.enabled);
-      }
-    }
-  };
-
   return (
-    <div className="flex justify-center">
-      {/* Mic control */}
-      <Button
-        onClick={toggleMic}
-        variant="rounded"
-        className={
-          isMicEnabled
-            ? "w-16 h-16 bg-zinc-800 hover:bg-zinc-600"
-            : "w-16 h-16 bg-red-100 hover:bg-red-200"
-        }
-      >
-        {isMicEnabled ? (
-          <FaMicrophone />
-        ) : (
-          <FaMicrophoneSlash className="text-red-800" />
-        )}
-      </Button>
-
-      {/* Cam control */}
-      <Button
-        onClick={toggleCam}
-        variant="rounded"
-        className={`ml-2 ${
-          isCamEnabled
-            ? "w-16 h-16 bg-zinc-800 hover:bg-zinc-600"
-            : "w-16 h-16 bg-red-100 hover:bg-red-200"
-        }`}
-      >
-        {isCamEnabled ? <FaVideo /> : <FaVideoSlash className="text-red-800" />}
-      </Button>
+    <div className="flex justify-center gap-4">
+      <MicControl />
+      <CamControl />
 
       {/* End call control */}
       <Button
         variant="rounded"
-        className="h-16 w-16 ml-2 bg-red-800 hover:bg-red-700"
+        className="h-16 w-16 bg-red-800 hover:bg-red-700"
         onClick={() => {
           callService.endCall();
           navigate("/");

@@ -9,9 +9,9 @@ interface CallStore {
   setCallName: (callName: string | null) => void;
   clearCallName: () => void;
   participantId: string | null;
-  setParticipantId: (participantId: string) => void;
+  setParticipantId: (participantId: string | null) => void;
   participantName: string | null;
-  setParticipantName: (participantName: string) => void;
+  setParticipantName: (participantName: string | null) => void;
   participants: Record<
     string,
     {
@@ -32,8 +32,6 @@ interface CallStore {
   removeAllParticipants: () => void;
   setParticipantMic: (participantId: string, isMicEnabled: boolean) => void;
   setParticipantCam: (participantId: string, isCamEnabled: boolean) => void;
-  hasMediaAccess: boolean;
-  setHasMediaAccess: (hasMediaAccess: boolean) => void;
   localStream: MediaStream | null;
   setLocalStream: (localStream: MediaStream | null) => void;
   isMicEnabled: boolean;
@@ -125,9 +123,6 @@ export const useCallStore = create<CallStore>()(
           },
         };
       }),
-
-    hasMediaAccess: false,
-    setHasMediaAccess: (hasMediaAccess) => set({ hasMediaAccess }),
 
     localStream: null,
     setLocalStream: (localStream) => set({ localStream }),
