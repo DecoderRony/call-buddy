@@ -16,6 +16,7 @@ import {
 import { useCallStore } from "./callStore";
 import { firestore } from "../config/firebase";
 import { createDummyMediaStream, getRTCPeerConnection } from "./utils";
+import { showToast } from "@/components/functions/Toast";
 
 let instance: CallService;
 
@@ -107,6 +108,7 @@ class CallService {
     const participants = useCallStore.getState().participants;
     const addParticipantConnection =
       useCallStore.getState().addParticipantConnection;
+    const addParticipantName = useCallStore.getState().addParticipantName;
 
     const otherParticipantId = otherParticipant.doc.id;
 
@@ -118,6 +120,7 @@ class CallService {
       peerConnection,
       participants
     );
+    addParticipantName(otherParticipantId, otherParticipant.doc.data().name);
 
     console.log(
       "2a. creating connection with other participant: ",
@@ -219,6 +222,10 @@ class CallService {
       participants[otherParticipantId].connection.close();
       removeParticipant(otherParticipantId);
     }
+
+    showToast({
+      title: `${participants[otherParticipantId].name} has left the call`,
+    });
   }
 
   private async handleParticipantOffer(otherParticipant: DocumentChange) {
@@ -262,9 +269,7 @@ class CallService {
         otherParticipantId,
         otherParticipantData?.isCamEnabled || true
       );
-      if (!participants[otherParticipantId].name) {
-        addParticipantName(otherParticipantId, otherParticipantData?.name);
-      }
+      addParticipantName(otherParticipantId, otherParticipantData?.name);
     }
 
     console.log(
@@ -415,7 +420,6 @@ class CallService {
           const participants = useCallStore.getState().participants;
           const setParticipantMic = useCallStore.getState().setParticipantMic;
           const setParticipantCam = useCallStore.getState().setParticipantCam;
-          const addParticipantName = useCallStore.getState().addParticipantName;
 
           const otherParticipantId = otherParticipant.doc.id;
           const otherParticipantData = otherParticipant.doc.data();
@@ -461,12 +465,6 @@ class CallService {
               otherParticipantId,
               otherParticipantData.isCamEnabled
             );
-            if (!participants[otherParticipantId].name) {
-              addParticipantName(
-                otherParticipantId,
-                otherParticipantData?.name
-              );
-            }
           }
         });
       }
