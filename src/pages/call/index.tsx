@@ -6,6 +6,7 @@ import { showToast } from "@/components/functions/Toast";
 import CallStarterScreen from "./CallStarterScreen";
 import CallRoomScreen from "./CallRoomScreen";
 import { useCallStore } from "@/lib/callStore";
+import Loading from "@/components/ui/Loading";
 import { getToast } from "@/lib/utils";
 
 function CallPage() {
@@ -77,7 +78,7 @@ function CallPage() {
   };
 
   if (loading || !callId) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
