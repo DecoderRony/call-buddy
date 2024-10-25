@@ -75,3 +75,70 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* styles for loading component */
+@keyframes elastic-dot-1 {
+  0% {
+      transform: scale(1, 1);
+    }
+    25% {
+      transform: scale(1, 1.5);
+    }
+    50% {
+      transform: scale(1, 0.67);
+    }
+    75% {
+      transform: scale(1, 1);
+    }
+    100% {
+      transform: scale(1, 1);
+    }
+}
+
+@keyframes elastic-dot-2 {
+  0% {
+      transform: scale(1, 1);
+    }
+    25% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(1, 1.5);
+    }
+    75% {
+      transform: scale(1, 1);
+    }
+    100% {
+      transform: scale(1, 1);
+    }
+}
+
+@keyframes elastic-dot-3 {
+  0% {
+      transform: scale(1, 1);
+    }
+    25% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(1, 0.67);
+    }
+    75% {
+      transform: scale(1, 1.5);
+    }
+    100% {
+      transform: scale(1, 1);
+    }
+}
+
+.dot1 {
+  animation: elastic-dot-1 1s infinite linear;
+}
+
+.dot2 {
+  animation: elastic-dot-2 1s infinite linear;
+}
+
+.dot3 {
+  animation: elastic-dot-3 1s infinite linear;
+}
