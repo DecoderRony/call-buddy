@@ -7,25 +7,20 @@ import CallStarterScreen from "./CallStarterScreen";
 import CallRoomScreen from "./CallRoomScreen";
 import { useCallStore } from "@/lib/callStore";
 import Loading from "@/components/ui/Loading";
+import { getToast } from "@/lib/utils";
 
 function CallPage() {
   const navigate = useNavigate();
   const { callId } = useParams();
 
+  const isInCall = useCallStore((state) => state.isInCall);
   const setParticipantName = useCallStore((state) => state.setParticipantName);
-  const [callExists, setCallExists] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isInCall, setIsInCall] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       if (!callId) {
-        showToast({
-          title: "Error joining call",
-          description:
-            "Looks like something went wrong. Please try again later.",
-          isError: true,
-        });
+        showToast(getToast("UNABLE_TO_JOIN_CALL"));
         navigate("/");
         return;
       }
@@ -33,25 +28,14 @@ function CallPage() {
       try {
         const callExists = await callService.callExists(callId);
         if (callExists) {
-          setCallExists(true);
           setLoading(false);
         } else {
-          showToast({
-            title: "Uh Oh!",
-            description:
-              "Looks like no such call exists. Please make sure if you've got the correct link to the call.",
-            isError: true,
-          });
+          showToast(getToast("INVALID_CALL_LINK"));
           setLoading(false);
           navigate("/");
         }
       } catch (err) {
-        showToast({
-          title: "Error joining call",
-          description:
-            "Looks like something went wrong. Please try again later.",
-          isError: true,
-        });
+        showToast(getToast("UNABLE_TO_JOIN_CALL"));
         navigate("/");
       }
     };
@@ -79,16 +63,16 @@ function CallPage() {
       setLoading(true);
       setTimeout(async () => {
         setParticipantName(userName);
-        await callService.joinCall(callId);
-        setIsInCall(true);
+
+        const callJoined = await callService.joinCall(callId);
         setLoading(false);
+
+        if (callJoined.status === "error") {
+          showToast(getToast("UNABLE_TO_JOIN_CALL", callJoined.message));
+        }
       }, 1000);
     } catch (e) {
-      showToast({
-        title: "Error joining call",
-        description: "Looks like something went wrong. Please try again later.",
-        isError: true,
-      });
+      showToast(getToast("UNABLE_TO_JOIN_CALL"));
       navigate("/");
     }
   };

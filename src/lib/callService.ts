@@ -15,7 +15,12 @@ import {
 } from "firebase/firestore";
 import { useCallStore } from "./callStore";
 import { firestore } from "../config/firebase";
-import { createDummyMediaStream, getRTCPeerConnection } from "./utils";
+import {
+  createDummyAudioTrack,
+  createDummyVideoTrack,
+  getRTCPeerConnection,
+  getToast,
+} from "./utils";
 import { showToast } from "@/components/functions/Toast";
 
 let instance: CallService;
@@ -27,7 +32,8 @@ class CallService {
 
   private unsubscribeParticipantsListener: (() => void) | undefined;
   private unsubscribeOffersListener: (() => void) | undefined;
-  private unsubscribeLocalStreamListener: (() => void) | undefined;
+  private unsubscribeAudioStreamListener: (() => void) | undefined;
+  private unsubscribeVideoStreamListener: (() => void) | undefined;
 
   constructor() {
     if (instance) {
@@ -44,8 +50,11 @@ class CallService {
     if (this.unsubscribeOffersListener) {
       this.unsubscribeOffersListener();
     }
-    if (this.unsubscribeLocalStreamListener) {
-      this.unsubscribeLocalStreamListener();
+    if (this.unsubscribeAudioStreamListener) {
+      this.unsubscribeAudioStreamListener();
+    }
+    if (this.unsubscribeVideoStreamListener) {
+      this.unsubscribeVideoStreamListener();
     }
     this.unsubscribeParticipantsListener = undefined;
     this.unsubscribeOffersListener = undefined;
@@ -53,8 +62,16 @@ class CallService {
   }
 
   private pushLocalStreamToConnection(peerConnection: RTCPeerConnection) {
-    const localStream = useCallStore.getState().localStream;
-    const stream = localStream || createDummyMediaStream();
+    const audioStream = useCallStore.getState().audioStream;
+    const videoStream = useCallStore.getState().videoStream;
+
+    const stream = new MediaStream();
+    stream.addTrack(
+      audioStream?.getAudioTracks()[0] || createDummyAudioTrack()
+    );
+    stream.addTrack(
+      videoStream?.getVideoTracks()[0] || createDummyVideoTrack()
+    );
 
     if (peerConnection.getSenders().length !== 0) {
       console.log("3a/3b. replacing local stream in connection", stream);
@@ -223,9 +240,12 @@ class CallService {
       removeParticipant(otherParticipantId);
     }
 
-    showToast({
-      title: `${participants[otherParticipantId].name} has left the call`,
-    });
+    showToast(
+      getToast(
+        "TITLE",
+        `${participants[otherParticipantId].name} has left the call`
+      )
+    );
   }
 
   private async handleParticipantOffer(otherParticipant: DocumentChange) {
@@ -499,17 +519,15 @@ class CallService {
     return false;
   }
 
-  public async getLocalStream() {
+  public async getAudioStream() {
     try {
-      const setLocalStream = useCallStore.getState().setLocalStream;
-
+      const setAudioStream = useCallStore.getState().setAudioStream;
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
         audio: true,
       });
-      setLocalStream(stream);
-      this.setIsMicEnabled(true);
-      this.setIsCamEnabled(true);
+
+      setAudioStream(stream);
+      this.toggleMic();
     } catch (error: any) {
       if (error.name === "NotAllowedError") {
         return {
@@ -525,25 +543,109 @@ class CallService {
     }
   }
 
-  public async setIsMicEnabled(isMicEnabled: boolean) {
-    const setIsMicEnabled = useCallStore.getState().setIsMicEnabled;
-    setIsMicEnabled(isMicEnabled);
-
-    if (this.participantDoc) {
-      await updateDoc(this.participantDoc, {
-        isMicEnabled: isMicEnabled, // Update in Firebase
+  public async getVideoStream() {
+    try {
+      const setVideoStream = useCallStore.getState().setVideoStream;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
       });
+
+      setVideoStream(stream);
+      this.toggleCam();
+    } catch (error: any) {
+      if (error.name === "NotAllowedError") {
+        return {
+          error: true,
+          type: "ACCESS_DENIED",
+        };
+      } else {
+        return {
+          error: true,
+          type: "NOT_FOUND",
+        };
+      }
     }
   }
 
-  public async setIsCamEnabled(isCamEnabled: boolean) {
-    const setIsCamEnabled = useCallStore.getState().setIsCamEnabled;
-    setIsCamEnabled(isCamEnabled);
+  public async toggleMic() {
+    // Get the audio stream
+    const audioStream = useCallStore.getState().audioStream;
+    if (!audioStream) {
+      return {
+        status: "error",
+        message: "No audio stream avialable",
+      };
+    }
 
+    // Get audio tracks
+    const audioTrack = audioStream.getAudioTracks()[0];
+    if (!audioTrack) {
+      return {
+        status: "error",
+        message: "No audio track avialable",
+      };
+    }
+
+    // Update mic state
+    audioTrack.enabled = !audioTrack.enabled;
+    const setIsMicEnabled = useCallStore.getState().setIsMicEnabled;
+    setIsMicEnabled(audioTrack.enabled);
+
+    // update in firebase
     if (this.participantDoc) {
-      await updateDoc(this.participantDoc, {
-        isCamEnabled: isCamEnabled, // Update in Firebase
-      });
+      try {
+        await updateDoc(this.participantDoc, {
+          isMicEnabled: audioTrack.enabled,
+        });
+        return {
+          status: "success",
+          message: "Mic status changed",
+        };
+      } catch (err) {
+        return {
+          status: "error",
+          message: "Could not update in DB",
+        };
+      }
+    }
+  }
+
+  public async toggleCam() {
+    // Get the video stream
+    const videoStream = useCallStore.getState().videoStream;
+    if (!videoStream) {
+      return {
+        status: "error",
+        message: "No video stream avialable",
+      };
+    }
+
+    // Get video tracks
+    const videoTrack = videoStream.getVideoTracks()[0];
+    if (!videoTrack) {
+      return {
+        status: "error",
+        message: "No video track avialable",
+      };
+    }
+
+    // Update mic state
+    videoTrack.enabled = !videoTrack.enabled;
+    const setIsCamEnabled = useCallStore.getState().setIsCamEnabled;
+    setIsCamEnabled(videoTrack.enabled);
+
+    // update in firebase
+    if (this.participantDoc) {
+      try {
+        await updateDoc(this.participantDoc, {
+          isCamEnabled: videoTrack.enabled,
+        });
+      } catch (err) {
+        return {
+          status: "error",
+          message: "Could not update in DB",
+        };
+      }
     }
   }
 
@@ -592,6 +694,7 @@ class CallService {
     const isCamEnabled = useCallStore.getState().isCamEnabled;
     const participantName = useCallStore.getState().participantName;
     const setParticipantId = useCallStore.getState().setParticipantId;
+    const setIsInCall = useCallStore.getState().setIsInCall;
 
     // Initialize firebase references
     const callDocument = doc(firestore, "calls", callId);
@@ -618,9 +721,9 @@ class CallService {
       this.unsubscribeParticipantsListener = await this.watchParticipants();
       // listen for offers from other participants
       this.unsubscribeOffersListener = await this.watchOffers();
-      // listen for local stream changes
-      this.unsubscribeLocalStreamListener = useCallStore.subscribe(
-        (state) => state.localStream,
+      // listen for audio stream changes
+      this.unsubscribeAudioStreamListener = useCallStore.subscribe(
+        (state) => state.audioStream,
         () => {
           const participants = useCallStore.getState().participants;
           Object.keys(participants).forEach((participantId) => {
@@ -632,27 +735,56 @@ class CallService {
           });
         }
       );
+      // listen for video stream changes
+      this.unsubscribeVideoStreamListener = useCallStore.subscribe(
+        (state) => state.videoStream,
+        () => {
+          const participants = useCallStore.getState().participants;
+          Object.keys(participants).forEach((participantId) => {
+            if (participants[participantId].connection) {
+              this.pushLocalStreamToConnection(
+                participants[participantId].connection
+              );
+            }
+          });
+        }
+      );
+
+      setIsInCall(true);
+      return {
+        status: "success",
+      };
     } catch (err) {
-      // TODO: Handle UI
-      console.log("Could not join the call. Please try again later");
+      return {
+        status: "error",
+        message: "Could not join the call. Please try again later",
+      };
     }
   }
 
   public endCall() {
     const callId = useCallStore.getState().callId;
     const setCallId = useCallStore.getState().setCallId;
+    const setIsInCall = useCallStore.getState().setIsInCall;
     const setCallName = useCallStore.getState().setCallName;
     const participantId = useCallStore.getState().participantId;
     const setParticipantId = useCallStore.getState().setParticipantId;
     const setParticipantName = useCallStore.getState().setParticipantName;
     const participants = useCallStore.getState().participants;
-    const localStream = useCallStore.getState().localStream;
-    const setLocalStream = useCallStore.getState().setLocalStream;
+    const audioStream = useCallStore.getState().audioStream;
+    const setAudioStream = useCallStore.getState().setAudioStream;
+    const videoStream = useCallStore.getState().videoStream;
+    const setVideoStream = useCallStore.getState().setVideoStream;
     const removeAllParticipants = useCallStore.getState().removeAllParticipants;
 
     // 1. Stop local media tracks
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
+    if (audioStream) {
+      audioStream.getTracks().forEach((track) => {
+        track.stop(); // Stop each audio/video track
+      });
+    }
+    if (videoStream) {
+      videoStream.getTracks().forEach((track) => {
         track.stop(); // Stop each audio/video track
       });
     }
@@ -683,7 +815,8 @@ class CallService {
     }
 
     // 5. Reset the state and UI
-    setLocalStream(null);
+    setAudioStream(null);
+    setVideoStream(null);
     setCallId(null);
     setCallName(null);
     setParticipantId(null);
@@ -691,6 +824,7 @@ class CallService {
     this.participantDoc = undefined;
     this.participantsCollection = undefined;
     this.joinedAt = null;
+    setIsInCall(false);
   }
 }
 

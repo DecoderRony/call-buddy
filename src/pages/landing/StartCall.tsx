@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/Dialog";
 import Input from "@/components/ui/Input";
 import callService from "@/lib/callService";
+import { getToast } from "@/lib/utils";
 import { FormEvent, useState } from "react";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -15,16 +16,17 @@ function StartCall() {
   const startCall = async (e: FormEvent) => {
     e.preventDefault();
     try {
+      // TODO: firebase does not rejects promise if offline. Keeps the promise hanging, due to persistence in local DB.
+      // Implement a way to reject if offline.
+      // Approaches:
+      // 1. make app unusable if offline
+      // 2. Create a wrapper for firestore methoods that reject when offline https://github.com/firebase/firebase-js-sdk/issues/1497#issuecomment-472630547
       const callId = await callService.createCall(callName);
       navigate(`/call/${callId}`);
     } catch (e) {
       setIsDialogOpen(false);
       setCallName("");
-      showToast({
-        title: "Error creating call",
-        description: "Looks like something went wrong. Please try again later.",
-        isError: true,
-      });
+      showToast(getToast("UNABLE_TO_CREATE_CALL"));
     }
   };
 

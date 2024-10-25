@@ -5,6 +5,7 @@ import { useState } from "react";
 import { FaKeyboard } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@/components/functions/Toast";
+import { getToast } from "@/lib/utils";
 
 function JoinCall() {
   const navigate = useNavigate();
@@ -15,19 +16,10 @@ function JoinCall() {
       if (await callService.callExists(callId)) {
         navigate(`/call/${callId}`);
       } else {
-        showToast({
-          title: "Uh Oh!",
-          description:
-            "Looks like no call exists with this Call Id. Please check if you've got the Call Id right.",
-          isError: true,
-        });
+        showToast(getToast("INVALID_CALL_ID"));
       }
     } catch (err) {
-      showToast({
-        title: "Error joining call",
-        description: "Looks like something went wrong. Please try again later.",
-        isError: true,
-      });
+      showToast(getToast("UNABLE_TO_JOIN_CALL"));
     }
   };
 

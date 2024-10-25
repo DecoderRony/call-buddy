@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 interface CallStore {
+  isInCall: boolean;
+  setIsInCall: (isInCall: boolean) => void;
   callId: string | null;
   setCallId: (callId: string | null) => void;
   clearCallId: () => void;
@@ -32,8 +34,10 @@ interface CallStore {
   removeAllParticipants: () => void;
   setParticipantMic: (participantId: string, isMicEnabled: boolean) => void;
   setParticipantCam: (participantId: string, isCamEnabled: boolean) => void;
-  localStream: MediaStream | null;
-  setLocalStream: (localStream: MediaStream | null) => void;
+  audioStream: MediaStream | null;
+  setAudioStream: (localStream: MediaStream | null) => void;
+  videoStream: MediaStream | null;
+  setVideoStream: (localStream: MediaStream | null) => void;
   isMicEnabled: boolean;
   setIsMicEnabled: (isMicEnabled: boolean) => void;
   isCamEnabled: boolean;
@@ -42,6 +46,9 @@ interface CallStore {
 
 export const useCallStore = create<CallStore>()(
   subscribeWithSelector((set) => ({
+    isInCall: false,
+    setIsInCall: (isInCall) => set({ isInCall }),
+
     callId: null,
     setCallId: (callId) => set({ callId }),
     clearCallId: () => set({ callId: null }),
@@ -124,8 +131,11 @@ export const useCallStore = create<CallStore>()(
         };
       }),
 
-    localStream: null,
-    setLocalStream: (localStream) => set({ localStream }),
+    audioStream: null,
+    setAudioStream: (audioStream) => set({ audioStream }),
+
+    videoStream: null,
+    setVideoStream: (videoStream) => set({ videoStream }),
 
     isMicEnabled: false,
     setIsMicEnabled: (isMicEnabled) => set({ isMicEnabled }),
