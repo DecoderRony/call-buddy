@@ -3,44 +3,29 @@ import Button from "../ui/Button";
 import { useCallStore } from "@/lib/callStore";
 import callService from "@/lib/callService";
 import { showToast } from "./Toast";
+import { getToast } from "@/lib/utils";
 
 function CamControl() {
-  const localStream = useCallStore((state) => state.localStream);
+  const videoStream = useCallStore((state) => state.videoStream);
   const isCamEnabled = useCallStore((state) => state.isCamEnabled);
 
   const toggleCam = async () => {
-    if (localStream) {
-      // Get the video track from the local stream
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled; // Toggle mute/unmute
-        callService.setIsCamEnabled(videoTrack.enabled);
-      }
+    const response = await callService.toggleCam();
+    if (response?.status === "error") {
+      showToast(getToast("DESCRIPTION_ERROR", response.message));
     }
   };
 
   const handleGetStream = async () => {
-    const response = await callService.getLocalStream();
+    const response = await callService.getVideoStream();
     if (response?.error) {
-      if (response.type === "ACCESS_DENIED") {
-        showToast({
-          title: "Media access denied",
-          description:
-            "You won't be able to speak or share your video in the call",
-          isError: true,
-        });
-      } else {
-        showToast({
-          title: "Meida devices not found",
-          description:
-            "You won't be able to speak or share your video in the call",
-          isError: true,
-        });
-      }
+      response.type === "ACCESS_DENIED"
+        ? showToast(getToast("CAMERA_ACCESS_DENIED"))
+        : showToast(getToast("CAMERA_NOT_FOUND"));
     }
   };
 
-  if (!localStream) {
+  if (!videoStream) {
     return (
       <div className="relative">
         <div className="absolute right-0 top-0 p-1 bg-yellow-500 rounded-full flex justify-center items-center">

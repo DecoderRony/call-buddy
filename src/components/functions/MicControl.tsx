@@ -7,44 +7,29 @@ import Button from "../ui/Button";
 import { useCallStore } from "@/lib/callStore";
 import callService from "@/lib/callService";
 import { showToast } from "./Toast";
+import { getToast } from "@/lib/utils";
 
 function MicControl() {
-  const localStream = useCallStore((state) => state.localStream);
+  const audioStream = useCallStore((state) => state.audioStream);
   const isMicEnabled = useCallStore((state) => state.isMicEnabled);
 
   const toggleMic = async () => {
-    if (localStream) {
-      // Get the audio track from the local stream
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled; // Toggle mute/unmute
-        callService.setIsMicEnabled(audioTrack.enabled);
-      }
+    const response = await callService.toggleMic();
+    if (response?.status === "error") {
+      showToast(getToast("DESCRIPTION_ERROR", response.message));
     }
   };
 
   const handleGetStream = async () => {
-    const response = await callService.getLocalStream();
+    const response = await callService.getAudioStream();
     if (response?.error) {
-      if (response.type === "ACCESS_DENIED") {
-        showToast({
-          title: "Media access denied",
-          description:
-            "You won't be able to speak or share your video in the call",
-          isError: true,
-        });
-      } else {
-        showToast({
-          title: "Meida devices not found",
-          description:
-            "You won't be able to speak or share your video in the call",
-          isError: true,
-        });
-      }
+      response.type === "ACCESS_DENIED"
+        ? showToast(getToast("MICROPHONE_ACCESS_DENIED"))
+        : showToast(getToast("MICROPHONE_NOT_FOUND"));
     }
   };
 
-  if (!localStream) {
+  if (!audioStream) {
     return (
       <div className="relative">
         <div className="absolute right-0 top-0 p-1 bg-yellow-500 rounded-full flex justify-center items-center">

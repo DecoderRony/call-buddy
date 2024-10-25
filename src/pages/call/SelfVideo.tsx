@@ -3,7 +3,8 @@ import { useCallStore } from "@/lib/callStore";
 
 function SelfVideo() {
   const participantName = useCallStore((state) => state.participantName);
-  const localStream = useCallStore((state) => state.localStream);
+  const audioStream = useCallStore((state) => state.audioStream);
+  const videoStream = useCallStore((state) => state.videoStream);
   const isMicEnabled = useCallStore((state) => state.isMicEnabled);
   const isCamEnabled = useCallStore((state) => state.isCamEnabled);
 
@@ -11,9 +12,11 @@ function SelfVideo() {
     <div className="absolute h-[30%] w-[25%] bottom-5 right-5">
       <UserVideo
         name={participantName}
-        stream={localStream}
+        audioStream={audioStream}
+        videoStream={videoStream}
         isMicEnabled={isMicEnabled}
         isCamEnabled={isCamEnabled}
+        backgroundColor="lighter"
       />
     </div>
   );

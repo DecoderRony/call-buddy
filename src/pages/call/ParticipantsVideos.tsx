@@ -44,6 +44,7 @@ function ParticipantsVideos() {
           name={participants[participantId].name}
           isMicEnabled={participants[participantId].isMicEnabled}
           isCamEnabled={participants[participantId].isCamEnabled}
+          backgroundColor="light"
         />
       ))}
     </div>

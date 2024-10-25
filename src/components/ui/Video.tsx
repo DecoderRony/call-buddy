@@ -1,14 +1,16 @@
 import React, { useEffect, useRef } from "react";
 
 interface VideoProps extends React.HTMLAttributes<HTMLVideoElement> {
-  stream: MediaStream | null;
+  audioStream: MediaStream | null;
+  videoStream: MediaStream | null;
   width?: number;
   height?: number;
   videoClassName?: string;
 }
 
 function Video({
-  stream,
+  audioStream,
+  videoStream,
   width,
   height,
   className,
@@ -21,9 +23,12 @@ function Video({
 
   useEffect(() => {
     if (videoRef.current) {
+      const stream = new MediaStream();
+      if (audioStream) stream.addTrack(audioStream.getAudioTracks()[0]);
+      if (videoStream) stream.addTrack(videoStream.getVideoTracks()[0]);
       videoRef.current.srcObject = stream;
     }
-  }, [stream]);
+  }, [audioStream, videoStream]);
 
   return (
     <div
