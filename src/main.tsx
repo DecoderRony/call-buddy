@@ -19,6 +19,6 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <div id="app-container" className="h-dvh">
     <RouterProvider router={router} />
-    <Toaster position="bottom-center" richColors duration={6000} />
+    <Toaster position="top-right" richColors duration={6000} />
   </div>
 );
