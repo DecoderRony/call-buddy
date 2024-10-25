@@ -7,7 +7,9 @@ import {
   DocumentChange,
   DocumentReference,
   getDoc,
+  getDocs,
   onSnapshot,
+  query,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -44,6 +46,9 @@ class CallService {
     if (this.unsubscribeLocalStreamListener) {
       this.unsubscribeLocalStreamListener();
     }
+    this.unsubscribeParticipantsListener = undefined;
+    this.unsubscribeOffersListener = undefined;
+    this.unsubscribeOffersListener = undefined;
   }
 
   private pushLocalStreamToConnection(peerConnection: RTCPeerConnection) {
@@ -496,7 +501,7 @@ class CallService {
     return false;
   }
 
-  public getLocalStream = async () => {
+  public async getLocalStream() {
     try {
       const setLocalStream = useCallStore.getState().setLocalStream;
 
@@ -520,17 +525,13 @@ class CallService {
         };
       }
     }
-  };
+  }
 
   public async setIsMicEnabled(isMicEnabled: boolean) {
     const setIsMicEnabled = useCallStore.getState().setIsMicEnabled;
     setIsMicEnabled(isMicEnabled);
-    console.log(
-      "updating mic status in DB if participant Doc exists",
-      isMicEnabled
-    );
+
     if (this.participantDoc) {
-      console.log("updating mic status in DB");
       await updateDoc(this.participantDoc, {
         isMicEnabled: isMicEnabled, // Update in Firebase
       });
@@ -540,15 +541,35 @@ class CallService {
   public async setIsCamEnabled(isCamEnabled: boolean) {
     const setIsCamEnabled = useCallStore.getState().setIsCamEnabled;
     setIsCamEnabled(isCamEnabled);
-    console.log(
-      "updating cam status in DB if participant Doc exists",
-      isCamEnabled
-    );
+
     if (this.participantDoc) {
-      console.log("updating cam status in DB");
       await updateDoc(this.participantDoc, {
         isCamEnabled: isCamEnabled, // Update in Firebase
       });
+    }
+  }
+
+  public async getCallParticipants() {
+    try {
+      const callId = useCallStore.getState().callId;
+      if (!callId) {
+        return {
+          error: true,
+        };
+      }
+
+      const callDocument = doc(firestore, "calls", callId);
+      const participantsCollection = collection(callDocument, "participants");
+      const participants: string[] = [];
+      const participantsSnapshot = await getDocs(query(participantsCollection));
+      participantsSnapshot.forEach((doc) => {
+        participants.push(doc.data().name);
+      });
+      return participants;
+    } catch (err) {
+      return {
+        error: true,
+      };
     }
   }
 
@@ -669,8 +690,11 @@ class CallService {
     setCallName(null);
     setParticipantId(null);
     setParticipantName(null);
+    this.participantDoc = undefined;
+    this.participantsCollection = undefined;
+    this.joinedAt = null;
   }
 }
 
-const singletonInstance = new CallService();
-export default singletonInstance;
+const callService = new CallService();
+export default callService;
