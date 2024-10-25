@@ -5,11 +5,13 @@ import callService from "@/lib/callService";
 import { showToast } from "@/components/functions/Toast";
 import CallStarterScreen from "./CallStarterScreen";
 import CallRoomScreen from "./CallRoomScreen";
+import { useCallStore } from "@/lib/callStore";
 
 function CallPage() {
   const navigate = useNavigate();
   const { callId } = useParams();
 
+  const setParticipantName = useCallStore((state) => state.setParticipantName);
   const [callExists, setCallExists] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isInCall, setIsInCall] = useState(false);
@@ -67,7 +69,7 @@ function CallPage() {
   //   callService.endCall();
   // };
 
-  const handleJoin = async () => {
+  const handleJoin = async (userName: string) => {
     try {
       if (!callId) {
         return;
@@ -75,6 +77,7 @@ function CallPage() {
 
       setLoading(true);
       setTimeout(async () => {
+        setParticipantName(userName);
         await callService.joinCall(callId);
         setIsInCall(true);
         setLoading(false);
@@ -97,9 +100,7 @@ function CallPage() {
     <div className="h-dvh flex flex-col p-5 relative">
       <CallInfo />
       {!isInCall ? (
-        <CallStarterScreen
-          handleJoin={handleJoin}
-        />
+        <CallStarterScreen handleJoin={handleJoin} />
       ) : (
         <CallRoomScreen />
       )}
