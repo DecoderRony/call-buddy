@@ -1,11 +1,12 @@
 import CamControl from "@/components/functions/CamControl";
 import MicControl from "@/components/functions/MicControl";
+import { showToast } from "@/components/functions/Toast";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Video from "@/components/ui/Video";
 import callService from "@/lib/callService";
 import { useCallStore } from "@/lib/callStore";
-import { useEffect, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface ParticipantsDetailsProps {
   participantsInCall: string[];
@@ -37,7 +38,7 @@ const ParticipantsDetails = ({
 };
 
 interface CallStarterScreenProps {
-  handleJoin: () => void;
+  handleJoin: (userName: string) => void;
 }
 
 function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
@@ -45,9 +46,16 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
   const [userName, setUserName] = useState("");
   const [participantsError, setParticipantsError] = useState(false);
   const [participantsInCall, setParticipantsInCall] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
+      // focus input element
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+
+      // get participants details
       const participants = await callService.getCallParticipants();
       if (!Array.isArray(participants)) {
         setParticipantsError(true);
@@ -58,6 +66,19 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
 
     init();
   }, []);
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (userName.trim()) {
+        handleJoin(userName);
+      } else {
+        showToast({
+          title: "Please provide a nickname",
+          isError: true
+        })
+      }
+    }
+  };
 
   return (
     <div className="h-full w-3/5 mx-auto flex flex-col justify-center items-center gap-16">
@@ -74,6 +95,8 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
           <div className="flex flex-col items-center gap-2">
             <h3 className="text-2xl font-medium">What should we call you?</h3>
             <Input
+              ref={inputRef}
+              onKeyDown={handleInputKeyDown}
               variant="dark"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
@@ -90,7 +113,7 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
         <span className="text-xl font-semibold">Ready to join?</span>
         <Button
           className="w-28"
-          onClick={handleJoin}
+          onClick={() => handleJoin(userName)}
           disabled={!userName.trim()}
         >
           Join
@@ -98,45 +121,6 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
       </div>
     </div>
   );
-
-  // return (
-  //   <div className="h-full mx-auto flex flex-col justify-center">
-  //     <div className="flex justify-between items-center">
-  //       <div className="flex-grow h-full w-full flex justify-center items-center mr-10">
-  //         <div id="video-container" className="max-w-[72%] max-h-[90%]">
-  //           <Video stream={localStream} />
-  //         </div>
-  //       </div>
-  //       <div className="flex-grow h-full w-full">
-  //         <div className="h-full flex flex-col gap-6 justify-center items-center">
-  //           <div className="flex flex-col items-center gap-2">
-  //             <h3 className="text-2xl font-semibold">
-  //               What should we call you?
-  //             </h3>
-  //             <Input
-  //               variant="dark"
-  //               value={userName}
-  //               onChange={(e) => setUserName(e.target.value)}
-  //             />
-  //           </div>
-  //           <div className="flex gap-6">
-  //             <MicControl />
-  //             <CamControl />
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //     <div className="mt-20 flex justify-center items-center">
-  //       <Button
-  //         className="w-28"
-  //         onClick={handleJoin}
-  //         disabled={!userName.trim()}
-  //       >
-  //         Join
-  //       </Button>
-  //     </div>
-  //   </div>
-  // );
 }
 
 export default CallStarterScreen;
