@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "@/components/functions/Toast";
 import { getToast } from "@/lib/utils";
 
+const inputFieldStyles = "w-full sm:w-fit";
+
 function JoinCall() {
   const navigate = useNavigate();
   const [callId, setCallId] = useState<string>("");
@@ -24,7 +26,7 @@ function JoinCall() {
   };
 
   return (
-    <div className="flex gap-3">
+    <div className={'flex flex-row justify-between gap-1 ' + inputFieldStyles}>
       <Input
         value={callId}
         type="text"
@@ -32,6 +34,7 @@ function JoinCall() {
         onChange={(e) => setCallId(e.target.value)}
         icon={<FaKeyboard size="1.5em" />}
         variant="dark"
+        className={inputFieldStyles}
       />
       <Button onClick={joinCall} variant="text" disabled={!callId.trim()}>
         Join
