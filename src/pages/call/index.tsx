@@ -82,7 +82,7 @@ function CallPage() {
   }
 
   return (
-    <div className="h-dvh flex flex-col p-5 relative">
+    <div className="h-dvh flex flex-col px-5 py-8 relative">
       <CallInfo />
       {!isInCall ? (
         <CallStarterScreen handleJoin={handleJoin} />

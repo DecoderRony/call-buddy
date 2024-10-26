@@ -109,7 +109,7 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
           />
         </div>
       </div>
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-4">
         <span className="text-xl font-semibold">Ready to join?</span>
         <Button
           className="w-28"
