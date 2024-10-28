@@ -29,14 +29,12 @@ const ParticipantsDetails = ({
   } else if (participantsInCall.length === 0) {
     content = "No participant(s) in the call.";
   } else {
-    content =
-      `There are already ${participantsInCall.length} participants in the call`;
+    content = `There are already ${participantsInCall.length} participants in the call`;
   }
 
   return (
-    <span className="hidden lg:inline text-neutral-400">
-      {content}
-    </span>
+    // h-12 is added to fix height change during shift from loading to content
+    <span className="h-12 hidden lg:inline text-neutral-400">{content}</span>
   );
 };
 
@@ -62,12 +60,14 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
 
       // get participants details
       const participants = await callService.getCallParticipants();
-      if (!Array.isArray(participants)) {
-        setParticipantsStatus("error");
-      } else {
-        setParticipantsStatus("success");
-        setParticipantsInCall(participants);
-      }
+      setTimeout(() => {
+        if (!Array.isArray(participants)) {
+          setParticipantsStatus("error");
+        } else {
+          setParticipantsStatus("success");
+          setParticipantsInCall(participants);
+        }
+      }, 1000);
     };
 
     init();
@@ -85,7 +85,9 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
 
   return (
     <div className="h-full w-full lg:w-3/5 md:mx-auto flex flex-col justify-center items-center gap-16 md:gap-28 lg:gap-16">
-      <h2 className="hidden lg:block text-4xl font-bold">Set up your Call Details</h2>
+      <h2 className="hidden lg:block text-4xl font-bold">
+        Set up your Call Details
+      </h2>
       <div className="h-full md:h-1/2 w-full flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-28 mt-10 md:mt-0">
         <div className="relative h-full w-full md:min-w-2/3 md:w-2/3 md:max-w-2/3 px-5">
           <Video audioStream={audioStream} videoStream={videoStream} />
@@ -96,7 +98,9 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
         </div>
         <div className="flex w-full lg:w-1/4 lg:flex-col justify-center items-center text-center gap-10">
           <div className="flex flex-col items-center gap-3">
-            <h3 className="text-xl md:text-2xl font-medium">What should we call you?</h3>
+            <h3 className="text-xl md:text-2xl font-medium">
+              What should we call you?
+            </h3>
             <Input
               ref={inputRef}
               onKeyDown={handleInputKeyDown}
@@ -114,7 +118,9 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <span className="hidden lg:inline text-xl font-semibold">Ready to join?</span>
+        <span className="hidden lg:inline text-xl font-semibold">
+          Ready to join?
+        </span>
         <Button
           className="w-28"
           onClick={() => {

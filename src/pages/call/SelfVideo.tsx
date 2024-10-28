@@ -9,7 +9,7 @@ function SelfVideo() {
   const isCamEnabled = useCallStore((state) => state.isCamEnabled);
 
   return (
-    <div className="absolute h-[20%] w-[25%] sm:h-[30%] sm:w-[25%] bottom-5 right-5">
+    <div className="absolute h-[20%] w-[30%] sm:h-[30%] sm:w-[25%] bottom-44 lg:bottom-5 right-5">
       <UserVideo
         name={participantName}
         audioStream={audioStream}

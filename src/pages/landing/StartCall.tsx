@@ -2,6 +2,7 @@ import { showToast } from "@/components/functions/Toast";
 import Button from "@/components/ui/Button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/Dialog";
 import Input from "@/components/ui/Input";
+import Loading from "@/components/ui/Loading";
 import callService from "@/lib/callService";
 import { getToast } from "@/lib/utils";
 import { FormEvent, useState } from "react";
@@ -12,6 +13,7 @@ function StartCall() {
   const navigate = useNavigate();
   const [callName, setCallName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const startCall = async (e: FormEvent) => {
     e.preventDefault();
@@ -21,14 +23,23 @@ function StartCall() {
       // Approaches:
       // 1. make app unusable if offline
       // 2. Create a wrapper for firestore methoods that reject when offline https://github.com/firebase/firebase-js-sdk/issues/1497#issuecomment-472630547
+      setLoading(true);
       const callId = await callService.createCall(callName);
-      navigate(`/call/${callId}`);
+      setTimeout(() => {
+        setLoading(false);
+        navigate(`/call/${callId}`, { state: { isCreatingCall: true } });
+      }, 1000);
     } catch (e) {
       setIsDialogOpen(false);
+      setLoading(false);
       setCallName("");
       showToast(getToast("UNABLE_TO_CREATE_CALL"));
     }
   };
+
+  if (loading) {
+    return <Loading text="Creating a call for you" />;
+  }
 
   return (
     <Dialog

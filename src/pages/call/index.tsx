@@ -1,13 +1,13 @@
+import { showToast } from "@/components/functions/Toast";
+import Loading from "@/components/ui/Loading";
+import callService from "@/lib/callService";
+import { useCallStore } from "@/lib/callStore";
+import { getToast } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CallInfo from "./CallInfo";
-import callService from "@/lib/callService";
-import { showToast } from "@/components/functions/Toast";
-import CallStarterScreen from "./CallStarterScreen";
 import CallRoomScreen from "./CallRoomScreen";
-import { useCallStore } from "@/lib/callStore";
-import Loading from "@/components/ui/Loading";
-import { getToast } from "@/lib/utils";
+import CallStarterScreen from "./CallStarterScreen";
 
 function CallPage() {
   const navigate = useNavigate();
@@ -15,7 +15,9 @@ function CallPage() {
 
   const isInCall = useCallStore((state) => state.isInCall);
   const setParticipantName = useCallStore((state) => state.setParticipantName);
+
   const [loading, setLoading] = useState(true);
+  const [callExists, setCallExists] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -26,9 +28,12 @@ function CallPage() {
       }
 
       try {
-        const callExists = await callService.callExists(callId);
-        if (callExists) {
-          setLoading(false);
+        const isCallExists = await callService.callExists(callId);
+        if (isCallExists) {
+          setTimeout(async () => {
+            setLoading(false);
+            setCallExists(true);
+          }, 1000);
         } else {
           showToast(getToast("INVALID_CALL_LINK"));
           setLoading(false);
@@ -77,8 +82,12 @@ function CallPage() {
     }
   };
 
-  if (loading || !callId) {
-    return <Loading />;
+  if (loading && callExists) {
+    return <Loading text="Joining call" />;
+  }
+
+  if (loading) {
+    return <Loading text="Please wait! Getting call details" />;
   }
 
   return (

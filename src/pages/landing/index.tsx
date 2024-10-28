@@ -4,6 +4,7 @@ import StartCall from "./StartCall";
 import Logo from "../../assets/logo.png";
 import LogoText from "../../assets/logo-text.png";
 import Image from "@/components/ui/Image";
+import Loading from "@/components/ui/Loading";
 
 const getFormattedDateTime = () => {
   const currentDateObj = new Date();
@@ -26,13 +27,19 @@ const getFormattedDateTime = () => {
 };
 
 const LandingPage = () => {
+  const [loading, setLoading] = useState(true);
   const [currDateTime, setCurrDateTime] = useState("");
 
   useEffect(() => {
     setInterval(() => {
       setCurrDateTime(getFormattedDateTime());
+      setLoading(false);
     }, 1000);
   }, []);
+
+  if (loading) {
+    return <Loading text="Loading" />;
+  }
 
   return (
     <div id="landing-page-container" className="relative flex flex-col h-full">
