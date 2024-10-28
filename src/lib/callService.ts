@@ -762,7 +762,7 @@ class CallService {
     }
   }
 
-  public endCall() {
+  public async endCall() {
     const callId = useCallStore.getState().callId;
     const setCallId = useCallStore.getState().setCallId;
     const setIsInCall = useCallStore.getState().setIsInCall;
@@ -810,7 +810,7 @@ class CallService {
         participantId
       );
       if (participantDoc) {
-        deleteDoc(participantDoc); // Remove your participant entry from Firebase
+        await deleteDoc(participantDoc); // Remove your participant entry from Firebase
       }
     }
 
