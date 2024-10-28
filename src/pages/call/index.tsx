@@ -87,7 +87,7 @@ function CallPage() {
   }
 
   if (loading) {
-    return <Loading text="Please wait! Getting call details" />;
+    return <Loading text="Please wait. Getting call details" />;
   }
 
   return (
