@@ -41,7 +41,7 @@ const LandingPage = () => {
       <div className="grid grid-rows-2 sm:grid-rows-1 sm:grid-cols-2 px-4 sm:px-[6em] py-10 sm:py-0 h-[95%]">
         <div className="flex flex-col justify-between sm:justify-center">
           {/* hero for small devices */}
-          <h1 className="text-5xl sm:text-5xl sm:hidden leading-snug text-center">
+          <h1 className="text-5xl sm:text-5xl block sm:hidden leading-snug text-center">
             Connecting you<br />{" "}
             <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               seamlessly,
@@ -51,7 +51,7 @@ const LandingPage = () => {
           </h1>
 
           {/* hero for devices > sm */}
-          <h1 className="text-4xl sm:text-5xl hidden sm:block">
+          <h1 className="block max-sm:hidden text-4xl sm:text-5xl">
             Connecting you{" "}
             <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               seamlessly,

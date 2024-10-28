@@ -107,13 +107,13 @@ function UserVideo({
         <div className={`h-full w-full ${backgroundClass} `} />
       )}
       {(!isMicEnabled || !isCamEnabled) && (
-        <div className="absolute top-4 left-4 flex justify-center items-center gap-3">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex justify-center items-center gap-1 sm:gap-3 max-sm:text-xs">
           {!isMicEnabled && <InfoIcon icon={<FaMicrophoneSlash />} />}
           {!isCamEnabled && <InfoIcon icon={<FaVideoSlash />} />}
         </div>
       )}
       {name && (
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 max-sm:text-xs">
           <InfoText text={name} />
         </div>
       )}
