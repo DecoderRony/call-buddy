@@ -3,12 +3,20 @@ import React, { forwardRef } from "react";
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
   iconClassName?: string;
+  containerClassName?: string;
   variant: "light" | "dark";
 }
 
 const Input = forwardRef(
   (
-    { icon, className, iconClassName, variant, ...rest }: Readonly<InputProps>,
+    {
+      icon,
+      className,
+      iconClassName,
+      containerClassName,
+      variant,
+      ...rest
+    }: Readonly<InputProps>,
     ref: React.Ref<HTMLInputElement>
   ) => {
     const colorClasses =
@@ -18,7 +26,7 @@ const Input = forwardRef(
 
     if (icon) {
       return (
-        <div className="h-12 relative w-full">
+        <div className={"h-12 relative w-full " + containerClassName}>
           <div className={"absolute left-6 top-3 " + iconClassName}>{icon}</div>
           <input
             ref={ref}
@@ -34,7 +42,7 @@ const Input = forwardRef(
     }
 
     return (
-      <div className="h-12">
+      <div className={"h-12 " + containerClassName}>
         <input
           ref={ref}
           className={

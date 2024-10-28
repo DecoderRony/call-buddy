@@ -33,7 +33,11 @@ const ParticipantsDetails = ({
       `There are already ${participantsInCall.length} participants in the call`;
   }
 
-  return <span className="max-sm:text-xs text-neutral-400">{content}</span>;
+  return (
+    <span className="hidden lg:inline text-neutral-400">
+      {content}
+    </span>
+  );
 };
 
 interface CallStarterScreenProps {
@@ -80,19 +84,19 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
   };
 
   return (
-    <div className="h-full sm:w-3/5 mx-auto flex flex-col sm:justify-center items-center gap-4 sm:gap-16 pt-2 sm-pt-0">
-      <h2 className="text-2xl sm:text-4xl font-bold">Set up your Call Details</h2>
-      <div className="h-full sm:h-1/2 w-full flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-28">
-        <div className="relative h-[360px] w-full sm:h-full sm:w-[1280px] px-2 sm:px-0">
+    <div className="h-full w-full lg:w-3/5 md:mx-auto flex flex-col justify-center items-center gap-16 md:gap-28 lg:gap-16">
+      <h2 className="hidden lg:block text-4xl font-bold">Set up your Call Details</h2>
+      <div className="h-full md:h-1/2 w-full flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-28 mt-10 md:mt-0">
+        <div className="relative h-full w-full md:w-2/3 lg:min-w-3/4 lg:w-3/4 lg:max-w-3/4 px-5 lg:px-0">
           <Video audioStream={audioStream} videoStream={videoStream} />
-          <div className="absolute w-full flex justify-center bottom-5 gap-6">
+          <div className="relative w-full flex justify-center bottom-20 gap-6">
             <MicControl />
             <CamControl />
           </div>
         </div>
-        <div className="flex w-full flex-col justify-center items-center text-center gap-4 sm:gap-10">
+        <div className="flex w-full lg:w-1/4 lg:flex-col justify-center items-center text-center gap-10">
           <div className="flex flex-col items-center gap-3">
-            <h3 className="text-lg sm:text-2xl font-medium">What should we call you?</h3>
+            <h3 className="text-xl md:text-2xl font-medium">What should we call you?</h3>
             <Input
               ref={inputRef}
               onKeyDown={handleInputKeyDown}
@@ -102,15 +106,15 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
               onChange={(e) => setUserName(e.target.value)}
             />
           </div>
-          <div className="w-full border-b border-zinc-700"></div>
+          <div className="hidden lg:block lg:w-full lg:border-b border-zinc-700"></div>
           <ParticipantsDetails
             status={participantsStatus}
             participantsInCall={participantsInCall}
           />
         </div>
       </div>
-      <div className="w-full flex sm:flex-col justify-between items-center gap-4">
-        <span className="text-md sm:text-xl font-semibold">Ready to join?</span>
+      <div className="flex flex-col items-center gap-4">
+        <span className="hidden lg:inline text-xl font-semibold">Ready to join?</span>
         <Button
           className="w-28"
           onClick={() => {
