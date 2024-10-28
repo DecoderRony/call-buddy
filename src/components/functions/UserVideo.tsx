@@ -1,6 +1,18 @@
 import React, { ReactNode, useEffect, useRef } from "react";
 import { FaMicrophoneSlash, FaVideoSlash } from "react-icons/fa6";
 
+function getInitials(name: string | null) {
+  if (!name) return "";
+  const words = name.split(" ");
+  if (words.length > 2) words.splice(2, words.length - 2);
+
+  let initials = "";
+  for (const word of words) {
+    initials += word.charAt(0).toUpperCase();
+  }
+  return initials;
+}
+
 interface InfoIconProps {
   icon: ReactNode;
 }
@@ -104,7 +116,11 @@ function UserVideo({
           {...rest}
         />
       ) : (
-        <div className={`h-full w-full ${backgroundClass} `} />
+        <div className={`h-full w-full flex justify-center items-center ${backgroundClass} `}>
+          <div className="h-1/2 flex justify-center items-center aspect-square rounded-full bg-zinc-300">
+            <div className="text-6xl font-semibold text-neutral-600">{getInitials(name)}</div>
+          </div>
+        </div>
       )}
       {(!isMicEnabled || !isCamEnabled) && (
         <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex justify-center items-center gap-1 sm:gap-3 max-sm:text-xs">
