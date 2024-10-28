@@ -27,9 +27,9 @@ function CallControl() {
         onClick={() => {
           setLoading(true);
           setTimeout(() => {
+            navigate("/");
             callService.endCall();
             setLoading(false);
-            navigate("/");
           }, 1000);
         }}
       >
