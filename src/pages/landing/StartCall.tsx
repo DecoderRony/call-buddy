@@ -8,6 +8,8 @@ import { FormEvent, useState } from "react";
 import { MdVideoCall } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
+const buttonStyles = "w-full sm:w-fit";
+
 function StartCall() {
   const navigate = useNavigate();
   const [callName, setCallName] = useState("");
@@ -31,47 +33,47 @@ function StartCall() {
   };
 
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(open) => {
-        if (!open) {
-          setCallName("");
-        }
-        setIsDialogOpen(open);
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button>
-          <MdVideoCall size="1.5em" /> &nbsp; Start a call
-        </Button>
-      </DialogTrigger>
-      <DialogContent showCloseIcon={false} className="sm:max-w-[425px]">
-        <h3 className="text-2xl text-neutral-900 font-semibold">
-          Start a new Call
-        </h3>
-        <form onSubmit={startCall} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="call-name" className="text-neutral-900 text-sm">
-              Provide a name for your call so that your friends know what this
-              call is about
-            </label>
-            <Input
-              className="w-full"
-              id="call-name"
-              variant="light"
-              placeholder="Enter call name"
-              value={callName}
-              onChange={(e) => setCallName(e.target.value)}
-            />
-          </div>
-          <div id="footer" className="flex justify-center mt-2">
-            <Button type="submit" disabled={!callName.trim()}>
-              Start Call
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCallName("");
+          }
+          setIsDialogOpen(open);
+        }}
+      >
+        <DialogTrigger asChild className={buttonStyles}>
+          <Button>
+            <MdVideoCall size="1.5em" /> &nbsp; Start a call
+          </Button>
+        </DialogTrigger>
+        <DialogContent showCloseIcon={false} className="max-w-[365px] sm:max-w-[425px]">
+          <h3 className="text-2xl text-neutral-900 font-semibold">
+            Start a new Call
+          </h3>
+          <form onSubmit={startCall} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="call-name" className="text-neutral-900 text-sm">
+                Provide a name for your call so that your friends know what this
+                call is about
+              </label>
+              <Input
+                className="w-full"
+                id="call-name"
+                variant="light"
+                placeholder="Enter call name"
+                value={callName}
+                onChange={(e) => setCallName(e.target.value)}
+              />
+            </div>
+            <div id="footer" className="flex justify-center mt-2">
+              <Button type="submit" disabled={!callName.trim()}>
+                Start Call
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
   );
 }
 

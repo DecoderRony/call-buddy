@@ -18,7 +18,7 @@ const Input = forwardRef(
 
     if (icon) {
       return (
-        <div className="h-12 relative">
+        <div className="h-12 relative w-full">
           <div className={"absolute left-6 top-3 " + iconClassName}>{icon}</div>
           <input
             ref={ref}
