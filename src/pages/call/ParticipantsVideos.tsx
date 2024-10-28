@@ -33,21 +33,23 @@ function ParticipantsVideos() {
 
   return (
     <div
-      ref={parentVideoContainerRef}
-      className={"h-full pt-8 pb-3 px-2 sm:px-16 gap-4 flex flex-wrap justify-center items-center"}
-    >
-      {Object.keys(participants).map((participantId) => (
-        <UserVideo
-          stream={participants[participantId].stream}
-          key={participantId}
-          name={participants[participantId].name}
-          isMicEnabled={participants[participantId].isMicEnabled}
-          isCamEnabled={participants[participantId].isCamEnabled}
-          backgroundColor="light"
-          className={`${noOfParticipants <= 2 ? 'w-full sm:w-[44%]' : 'w-[44%]'} max-w-[100%] mx-0 ${noOfParticipants < 2 ? 'h-full' : 'h-[45%] sm:h-full'}`}
-        />
-      ))}
-    </div>
+  ref={parentVideoContainerRef}
+  className={`h-full pt-8 pb-3 px-2 sm:px-16 gap-4 grid justify-center items-center ${
+    noOfParticipants < 2 ? 'grid-cols-1' : noOfParticipants === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-2'
+  }`}
+>
+  {Object.keys(participants).map((participantId) => (
+    <UserVideo
+      stream={participants[participantId].stream}
+      key={participantId}
+      name={participants[participantId].name}
+      isMicEnabled={participants[participantId].isMicEnabled}
+      isCamEnabled={participants[participantId].isCamEnabled}
+      backgroundColor="light"
+      className="w-full" // Adjusts each video width based on screen size
+    />
+  ))}
+</div>
   );
 }
 
