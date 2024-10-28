@@ -87,7 +87,7 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
     <div className="h-full w-full lg:w-3/5 md:mx-auto flex flex-col justify-center items-center gap-16 md:gap-28 lg:gap-16">
       <h2 className="hidden lg:block text-4xl font-bold">Set up your Call Details</h2>
       <div className="h-full md:h-1/2 w-full flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-28 mt-10 md:mt-0">
-        <div className="relative h-full w-full md:w-2/3 lg:min-w-3/4 lg:w-3/4 lg:max-w-3/4 px-5 lg:px-0">
+        <div className="relative h-full w-full md:min-w-2/3 md:w-2/3 md:max-w-2/3 px-5">
           <Video audioStream={audioStream} videoStream={videoStream} />
           <div className="relative w-full flex justify-center bottom-20 gap-6">
             <MicControl />
