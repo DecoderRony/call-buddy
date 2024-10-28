@@ -1,19 +1,25 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import NetworkDisabled from "./components/ui/NetworkDisabled";
+import NetworkDisabled from "./components/functions/NetworkDisabled";
 import CallPage from "./pages/call";
-import Landing from "./pages/landing";
+import LandingPage from "./pages/landing";
+import ErrorPage from "./pages/error";
 
 const router = createBrowserRouter([
   {
-
-    path: '/',
-    element: <Landing />
-  },
-  {
-    path: "/call/:callId",
-    element: <CallPage />,
+    path: "/",
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: <LandingPage />,
+      },
+      {
+        path: "call/:callId",
+        element: <CallPage />,
+      },
+    ],
   },
 ]);
 
@@ -34,16 +40,18 @@ const App = () => {
     };
   }, []);
 
-  return <>
-    {isOnline ?
-      <>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" richColors duration={6000} />
-      </>
-      :
-      <NetworkDisabled />
-    }
-  </>
-}
+  return (
+    <>
+      {isOnline ? (
+        <>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" richColors duration={6000} />
+        </>
+      ) : (
+        <NetworkDisabled />
+      )}
+    </>
+  );
+};
 
 export default App;
