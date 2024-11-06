@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CallInfo from "./CallInfo";
 import CallRoomScreen from "./CallRoomScreen";
 import CallStarterScreen from "./CallStarterScreen";
+import logger from "@/lib/loggerService";
 
 function CallPage() {
   const navigate = useNavigate();
@@ -48,14 +49,14 @@ function CallPage() {
     // window.addEventListener("beforeunload", cleanupOnUnload);
 
     return () => {
-      console.log("Component unmounted. Leaving call");
+      logger.debug("Call page component unmounted. Leaving call");
       callService.endCall();
       // window.removeEventListener("beforeunload", cleanupOnUnload);
     };
   }, []);
 
   // const cleanupOnUnload = () => {
-  //   console.log("cleaning up on unload");
+  //   logger.debug("cleaning up on unload");
   //   callService.endCall();
   // };
 

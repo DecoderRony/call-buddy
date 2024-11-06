@@ -31,10 +31,14 @@ const LandingPage = () => {
   const [currDateTime, setCurrDateTime] = useState("");
 
   useEffect(() => {
-    setInterval(() => {
+    const dateInterval = setInterval(() => {
       setCurrDateTime(getFormattedDateTime());
-      setLoading(false);
+      setLoading(false);  
     }, 1000);
+
+    return () => {
+      clearInterval(dateInterval);
+    };
   }, []);
 
   if (loading) {

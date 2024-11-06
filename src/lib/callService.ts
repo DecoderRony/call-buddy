@@ -22,6 +22,7 @@ import {
   getToast,
 } from "./utils";
 import { showToast } from "@/components/functions/Toast";
+import logger from "@/lib/loggerService";
 
 let instance: CallService;
 
@@ -62,6 +63,8 @@ class CallService {
   }
 
   private pushLocalStreamToConnection(peerConnection: RTCPeerConnection) {
+    logger.debug("Inside pushLocalStreamToConnection");
+
     const audioStream = useCallStore.getState().audioStream;
     const videoStream = useCallStore.getState().videoStream;
 
@@ -74,55 +77,56 @@ class CallService {
     );
 
     if (peerConnection.getSenders().length !== 0) {
-      console.log("3a/3b. replacing local stream in connection", stream);
+      logger.debug("Replacing local stream in connection", stream);
       peerConnection.getSenders().forEach((sender) => {
         if (sender.track?.kind === "audio" || sender.track?.kind === "video") {
           stream.getTracks().forEach((track) => {
             if (track.kind === sender.track?.kind) {
-              console.log("3aa/3ba. replacing with track successfull");
               sender.replaceTrack(track);
+              logger.info("replaced track", track);
             }
           });
         }
       });
     } else {
-      console.log("3a/3b. adding local stream to connection", stream);
+      logger.debug("Aadding local stream to connection", stream);
       stream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, stream);
+        logger.info("added track", track);
       });
     }
+
+    logger.debug("leaving pushLocalStreamToConnection");
   }
 
   private listenForRemoteTracks(
     peerConnection: RTCPeerConnection,
     participantId: string
   ) {
+    logger.debug("Inside listenForRemoteTracks");
     const addParticipantStream = useCallStore.getState().addParticipantStream;
-    console.log("4a/4b. listening for remote tracks from", participantId);
+
     peerConnection.ontrack = (event) => {
       const [remoteStream] = event.streams;
-      console.log(
-        "13a/12b. Remote description and answer candidates set. Remote tracks avialable: ",
+      addParticipantStream(participantId, remoteStream);
+      logger.info(
+        "added remote stream to participant",
+        participantId,
         remoteStream
       );
-      addParticipantStream(participantId, remoteStream);
-      const participants = useCallStore.getState().participants;
-      console.log(
-        "added participant stream: ",
-        participantId,
-        remoteStream,
-        participants
-      );
     };
+
+    logger.debug("leaving listenForRemoteTracks");
   }
 
   private async handleParticipantJoined(otherParticipant: DocumentChange) {
+    logger.debug("Inside handleParticipantJoined");
+
     if (!this.participantDoc || !this.joinedAt) {
       return;
     }
 
     // get states and actions from the store
-    const participants = useCallStore.getState().participants;
     const addParticipantConnection =
       useCallStore.getState().addParticipantConnection;
     const addParticipantName = useCallStore.getState().addParticipantName;
@@ -131,22 +135,8 @@ class CallService {
 
     const peerConnection = getRTCPeerConnection();
     addParticipantConnection(otherParticipantId, peerConnection);
-    console.log(
-      "added participant via participant joined",
-      otherParticipantId,
-      peerConnection,
-      participants
-    );
     addParticipantName(otherParticipantId, otherParticipant.doc.data().name);
-
-    console.log(
-      "2a. creating connection with other participant: ",
-      otherParticipantId,
-      "with peer connection: ",
-      peerConnection,
-      "updated participants object: ",
-      participants
-    );
+    logger.info("created connection with participant ", otherParticipantId);
 
     this.pushLocalStreamToConnection(peerConnection);
     this.listenForRemoteTracks(peerConnection, otherParticipantId);
@@ -158,28 +148,23 @@ class CallService {
     );
     const offerCandidates = collection(offerDoc, "candidates");
 
-    console.log(
-      "5a. Added listener for local ice candidates. When ready save to DB in offer candidates"
-    );
-    peerConnection.onicecandidate = (event) => {
-      console.log("7a. adding offer candidates ", event);
+    peerConnection.onicecandidate = async (event) => {
       if (event.candidate) {
-        addDoc(offerCandidates, event.candidate.toJSON());
+        await addDoc(offerCandidates, event.candidate.toJSON());
+        logger.info("added offer candidate to DB", event.candidate.candidate);
       }
     };
 
     const offerDescription = await peerConnection.createOffer();
-    console.log(
-      "6a. Setting local description. Ice candidates should be emitted after this"
-    );
     await peerConnection.setLocalDescription(offerDescription);
+    logger.info("set local description", offerDescription);
 
     const offer = {
       sdp: offerDescription.sdp,
       type: offerDescription.type,
     };
-    console.log("8a. Adding offer in other participants doc: ", offer);
     await setDoc(offerDoc, { description: offer }, { merge: true });
+    logger.info("added offer to DB", offer);
 
     const answerDoc = doc(
       otherParticipant.doc.ref,
@@ -192,15 +177,11 @@ class CallService {
       answerDoc,
       (snapshot) => {
         const answerData = snapshot.data();
-        console.log("9a. got answer data: ", answerData);
         if (answerData?.description) {
-          console.log(
-            "10a. setting remote description: ",
-            answerData.description
-          );
           peerConnection.setRemoteDescription(
             new RTCSessionDescription(answerData.description)
           );
+          logger.info("set remote description", answerData.description);
         }
       }
     );
@@ -210,17 +191,15 @@ class CallService {
       (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
-            console.log(
-              "11a. recived answer candidate. Adding to connection: ",
-              change.doc.data()
-            );
             const candidate = new RTCIceCandidate(change.doc.data());
             peerConnection.addIceCandidate(candidate);
+            logger.info("added answer candidate to connection", candidate);
           }
         });
       }
     );
 
+    logger.debug("leaving handleParticipantJoined");
     return () => {
       unsubscribeAnswerDescriptionListener();
       unsubscribeAnswerCandidatesListener();
@@ -228,7 +207,7 @@ class CallService {
   }
 
   private handleParticipantLeft(otherParticipant: DocumentChange) {
-    console.log("handle participant left ran");
+    logger.debug("Inside handleParticipantLeft");
 
     const otherParticipantId = otherParticipant.doc.id;
     const participants = useCallStore.getState().participants;
@@ -238,6 +217,7 @@ class CallService {
     if (participants[otherParticipantId]) {
       participants[otherParticipantId].connection.close();
       removeParticipant(otherParticipantId);
+      logger.info("removed participant with id ", otherParticipantId);
     }
 
     showToast(
@@ -246,17 +226,19 @@ class CallService {
         `${participants[otherParticipantId].name} has left the call`
       )
     );
+
+    logger.debug("leaving handleParticipantLeft");
   }
 
   private async handleParticipantOffer(otherParticipant: DocumentChange) {
-    console.log("handle participant offer ran");
+    logger.debug("Inside handleParticipantOffer");
+
     const offerData = otherParticipant.doc.data();
     if (!this.participantDoc || !offerData) {
       return;
     }
 
-    // get states and actions from the storesetParticipantM
-    const participants = useCallStore.getState().participants;
+    // get states and actions from the store
     const addParticipantConnection =
       useCallStore.getState().addParticipantConnection;
     const setParticipantMic = useCallStore.getState().setParticipantMic;
@@ -266,13 +248,8 @@ class CallService {
     const otherParticipantId = otherParticipant.doc.id;
 
     const peerConnection = getRTCPeerConnection();
-    console.log(
-      "added participant via offer: ",
-      otherParticipantId,
-      peerConnection,
-      participants
-    );
     addParticipantConnection(otherParticipantId, peerConnection);
+    logger.info("created connection with participant ", otherParticipantId);
 
     // fetch mic and cam status of the participant making offer
     // required for initial rendering
@@ -281,6 +258,12 @@ class CallService {
         doc(this.participantsCollection, otherParticipantId)
       );
       const otherParticipantData = otherParticipantDoc.data();
+
+      logger.info(
+        "setting media status and name for participant",
+        otherParticipantId,
+        otherParticipantData
+      );
       setParticipantMic(
         otherParticipantId,
         otherParticipantData?.isMicEnabled || true
@@ -292,53 +275,34 @@ class CallService {
       addParticipantName(otherParticipantId, otherParticipantData?.name);
     }
 
-    console.log(
-      "2b. Found offer from other participant: ",
-      otherParticipantId,
-      "creating connection with the participant: ",
-      peerConnection,
-      "updated participants object",
-      participants
-    );
-
     this.pushLocalStreamToConnection(peerConnection);
     this.listenForRemoteTracks(peerConnection, otherParticipantId);
 
     const answerDoc = doc(this.participantDoc, "answers", otherParticipantId);
     const answerCandidates = collection(answerDoc, "candidates");
 
-    console.log(
-      "5b. Added listener for local ice candidates. When ready save to DB in offer candidates"
-    );
     peerConnection.onicecandidate = async (event) => {
-      console.log("8b. adding answer candidates", event);
       if (event.candidate) {
         await addDoc(answerCandidates, event.candidate.toJSON());
+        logger.info("add answer candidate in DB", event.candidate);
       }
     };
 
-    console.log("6b. Setting remote description", offerData.description);
     await peerConnection.setRemoteDescription(
       new RTCSessionDescription(offerData.description)
     );
+    logger.info("set remote description", offerData.description);
 
     const answerDescription = await peerConnection.createAnswer();
-    console.log("partcipants till now: ", useCallStore.getState().participants);
-    console.log(
-      "7b. Created answer. Setting local description. Ice candidates should be emitted after this",
-      answerDescription
-    );
     await peerConnection.setLocalDescription(answerDescription);
+    logger.info("set local description", answerDescription);
+
     const answer = {
       sdp: answerDescription.sdp,
       type: answerDescription.type,
     };
-    console.log(
-      "9b. saving answer to self doc in answers for other participant: ",
-      otherParticipantId,
-      answer
-    );
     await setDoc(answerDoc, { description: answer }, { merge: true });
+    logger.info("added answer to DB", answer);
 
     const offerDoc = otherParticipant.doc.ref;
     const offerCandidates = collection(offerDoc, "candidates");
@@ -347,23 +311,22 @@ class CallService {
       (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
-            console.log(
-              "10b. recived offer candidates. Adding to connection",
-              change.doc.data()
-            );
             const candidate = new RTCIceCandidate(change.doc.data());
             peerConnection.addIceCandidate(candidate);
+            logger.info("added offer candidate to connection", candidate);
           }
         });
       }
     );
 
+    logger.debug("leaving handleParticipantOffer");
     return () => {
       unsubscribeOfferCandidatesListener();
     };
   }
 
   private async watchOffers() {
+    logger.debug("Inside watchOffers");
     if (!this.participantDoc) {
       return;
     }
@@ -379,12 +342,9 @@ class CallService {
       participantOffers,
       (snapshot) => {
         snapshot.docChanges().forEach(async (otherParticipant) => {
-          console.log("change in participant offer: ", otherParticipant);
-
           const otherParticipantId = otherParticipant.doc.id;
           const participants = useCallStore.getState().participants;
 
-          console.log("found participants after getting offer", participants);
           if (!this.participantDoc) {
             return;
           }
@@ -392,12 +352,6 @@ class CallService {
           const isSelfDocumentInChange =
             otherParticipantId === this.participantDoc.id;
           const connectionAlreadyExists = participants[otherParticipantId];
-          console.log(
-            "is self document: ",
-            isSelfDocumentInChange,
-            "does connection already exists",
-            connectionAlreadyExists
-          );
 
           if (
             !isSelfDocumentInChange &&
@@ -413,6 +367,7 @@ class CallService {
       }
     );
 
+    logger.debug("leaving watchOffers");
     return () => {
       unsubscribeMainOffersListener();
       Object.values(unsubscribeParticipantsOfferListeners).forEach((unsub) => {
@@ -422,6 +377,7 @@ class CallService {
   }
 
   private async watchParticipants() {
+    logger.debug("Inside watchParticipants");
     if (!this.participantsCollection || !this.participantDoc) {
       return;
     }
@@ -436,7 +392,6 @@ class CallService {
       this.participantsCollection,
       (snapshot) => {
         snapshot.docChanges().forEach(async (otherParticipant) => {
-          console.log("participant collection changed", otherParticipant);
           const participants = useCallStore.getState().participants;
           const setParticipantMic = useCallStore.getState().setParticipantMic;
           const setParticipantCam = useCallStore.getState().setParticipantCam;
@@ -464,11 +419,6 @@ class CallService {
             isNewParticpant &&
             !connectionAlreadyExists
           ) {
-            console.log(
-              "calling handle participant joined",
-              otherParticipantId,
-              participants
-            );
             const unsubsribeParticipantJoined =
               this.handleParticipantJoined(otherParticipant);
             unsubscribeParticipantsJoinedListeners[otherParticipantId] =
@@ -477,6 +427,11 @@ class CallService {
 
           // Handle media status changes
           if (!isSelfDocumentInChange) {
+            logger.info(
+              "setting media status for participant ",
+              otherParticipantId,
+              otherParticipantData
+            );
             setParticipantMic(
               otherParticipantId,
               otherParticipantData.isMicEnabled
@@ -490,6 +445,7 @@ class CallService {
       }
     );
 
+    logger.debug("leaving watchParticipants");
     return () => {
       unsubsribeMainParticipantsListener();
       Object.values(unsubscribeParticipantsJoinedListeners).forEach((unsub) => {
@@ -500,8 +456,11 @@ class CallService {
 
   // --------------------------- Public methods --------------------------------- //
   public async callExists(id: string) {
+    logger.debug("Inside callExists");
+
     const callId = useCallStore.getState().callId;
     if (callId) {
+      logger.info("call exists. leaving callExists");
       return true;
     }
 
@@ -514,12 +473,16 @@ class CallService {
 
       setCallId(id);
       setCallName(callSnap.data().name);
+
+      logger.info("call exists. leaving callExists");
       return true;
     }
+    logger.info("call does not exists. leaving callExists");
     return false;
   }
 
   public async getAudioStream() {
+    logger.debug("Inside getAudioStream");
     try {
       const setAudioStream = useCallStore.getState().setAudioStream;
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -528,13 +491,16 @@ class CallService {
 
       setAudioStream(stream);
       this.toggleMic();
+      logger.debug("leaving getAudioStream");
     } catch (error: any) {
       if (error.name === "NotAllowedError") {
+        logger.error("audio stream permission denied. leaving getAudioStream");
         return {
           error: true,
           type: "ACCESS_DENIED",
         };
       } else {
+        logger.error("no audio device found. leaving getAudioStream");
         return {
           error: true,
           type: "NOT_FOUND",
@@ -544,6 +510,8 @@ class CallService {
   }
 
   public async getVideoStream() {
+    logger.debug("Inside getVideoStream");
+
     try {
       const setVideoStream = useCallStore.getState().setVideoStream;
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -552,13 +520,16 @@ class CallService {
 
       setVideoStream(stream);
       this.toggleCam();
+      logger.debug("leaving getVideoStream");
     } catch (error: any) {
       if (error.name === "NotAllowedError") {
+        logger.error("video stream permission denied. leaving getVideoStream");
         return {
           error: true,
           type: "ACCESS_DENIED",
         };
       } else {
+        logger.error("no video device found. leaving getVideoStream");
         return {
           error: true,
           type: "NOT_FOUND",
@@ -568,9 +539,12 @@ class CallService {
   }
 
   public async toggleMic() {
+    logger.debug("Inside toggleMic");
+
     // Get the audio stream
     const audioStream = useCallStore.getState().audioStream;
     if (!audioStream) {
+      logger.error("no audio stream. leaving toggleMic");
       return {
         status: "error",
         message: "No audio stream avialable",
@@ -580,6 +554,7 @@ class CallService {
     // Get audio tracks
     const audioTrack = audioStream.getAudioTracks()[0];
     if (!audioTrack) {
+      logger.error("no audio track. leaving toggleMic");
       return {
         status: "error",
         message: "No audio track avialable",
@@ -597,11 +572,13 @@ class CallService {
         await updateDoc(this.participantDoc, {
           isMicEnabled: audioTrack.enabled,
         });
+        logger.debug("updated in DB. leaving toggleMic");
         return {
           status: "success",
           message: "Mic status changed",
         };
       } catch (err) {
+        logger.error("could not update in DB. leaving toggleMic");
         return {
           status: "error",
           message: "Could not update in DB",
@@ -611,9 +588,12 @@ class CallService {
   }
 
   public async toggleCam() {
+    logger.debug("Inside toggleCam");
+
     // Get the video stream
     const videoStream = useCallStore.getState().videoStream;
     if (!videoStream) {
+      logger.error("no video stream. leaving toggleCam");
       return {
         status: "error",
         message: "No video stream avialable",
@@ -623,6 +603,7 @@ class CallService {
     // Get video tracks
     const videoTrack = videoStream.getVideoTracks()[0];
     if (!videoTrack) {
+      logger.error("no video track. leaving toggleCam");
       return {
         status: "error",
         message: "No video track avialable",
@@ -640,7 +621,13 @@ class CallService {
         await updateDoc(this.participantDoc, {
           isCamEnabled: videoTrack.enabled,
         });
+        logger.debug("updated in DB. leaving toggleCam");
+        return {
+          status: "success",
+          message: "Cam status changed",
+        };
       } catch (err) {
+        logger.error("could not update in DB. leaving toggleCam");
         return {
           status: "error",
           message: "Could not update in DB",
@@ -674,21 +661,34 @@ class CallService {
   }
 
   public async createCall(callName: string) {
+    logger.debug("Inside createCall");
+
     const setCallId = useCallStore.getState().setCallId;
     const setCallName = useCallStore.getState().setCallName;
 
     const callsCollection = collection(firestore, "calls");
-    const callDocument = await addDoc(callsCollection, {
-      name: callName,
-      createdAt: Date.now(),
-    });
+    let callDocument: DocumentReference;
+    try {
+      callDocument = await addDoc(callsCollection, {
+        name: callName,
+        createdAt: Date.now(),
+      });
+      logger.info(`Created call ${callName} with id ${callDocument.id}`);
+    } catch (err) {
+      logger.error("Could not create call. leaving createCall", err);
+      throw new Error("Could not create call");
+    }
 
     setCallId(callDocument.id);
     setCallName(callName);
+
+    logger.debug("leaving createCall");
     return callDocument.id;
   }
 
   public async joinCall(callId: string) {
+    logger.debug("Inside joinCall");
+
     // get states and actions from the store
     const isMicEnabled = useCallStore.getState().isMicEnabled;
     const isCamEnabled = useCallStore.getState().isCamEnabled;
@@ -710,6 +710,9 @@ class CallService {
         isMicEnabled: isMicEnabled,
         isCamEnabled: isCamEnabled,
       });
+      logger.info(
+        `Joined call with name ${participantName} and id ${participantDoc.id}`
+      );
 
       // Initialize call instance values
       this.participantsCollection = participantsCollection;
@@ -751,10 +754,12 @@ class CallService {
       );
 
       setIsInCall(true);
+      logger.debug("leaving joinCall");
       return {
         status: "success",
       };
     } catch (err) {
+      logger.error("could not join call. leaving joinCall", err);
       return {
         status: "error",
         message: "Could not join the call. Please try again later",
@@ -763,6 +768,8 @@ class CallService {
   }
 
   public async endCall() {
+    logger.debug("Inside endCall");
+
     const callId = useCallStore.getState().callId;
     const setCallId = useCallStore.getState().setCallId;
     const setIsInCall = useCallStore.getState().setIsInCall;
@@ -813,6 +820,7 @@ class CallService {
         await deleteDoc(participantDoc); // Remove your participant entry from Firebase
       }
     }
+    logger.info(`Removed participant ${participantId} from call`);
 
     // 5. Reset the state and UI
     setAudioStream(null);

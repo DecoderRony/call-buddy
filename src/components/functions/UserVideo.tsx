@@ -74,7 +74,7 @@ function UserVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const widthClass = width ? `w-[${width}px]` : "w-full";
   const heightClass = height ? `h-[${height}px]` : "h-full";
-
+  
   let stream: MediaStream | null;
   if ("stream" in rest && rest.stream) {
     stream = rest.stream;
@@ -87,20 +87,20 @@ function UserVideo({
       stream.addTrack(rest.videoStream.getVideoTracks()[0]);
     }
   }
-
+  
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
     }
   }, [stream, isCamEnabled]);
-
+  
   const backgroundClass = {
     lighter: "bg-zinc-600",
     light: "bg-zinc-700",
     dark: "bg-gray-700",
     darker: "bg-neutral-800",
   }[backgroundColor ?? "lighter"];
-
+  
   return (
     <div
       className={
