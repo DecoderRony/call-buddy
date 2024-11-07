@@ -45,10 +45,13 @@ interface CallStarterScreenProps {
 function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
   const audioStream = useCallStore((state) => state.audioStream);
   const videoStream = useCallStore((state) => state.videoStream);
+  const isCamEnabled = useCallStore((state) => state.isCamEnabled);
+
   const [userName, setUserName] = useState("");
   const [participantsStatus, setParticipantsStatus] =
     useState<Status>("loading");
   const [participantsInCall, setParticipantsInCall] = useState<string[]>([]);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -91,6 +94,18 @@ function CallStarterScreen({ handleJoin }: Readonly<CallStarterScreenProps>) {
       <div className="h-full md:h-1/2 w-full flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-28 mt-10 md:mt-0">
         <div className="relative h-full w-full md:min-w-2/3 md:w-2/3 md:max-w-2/3 px-5">
           <Video audioStream={audioStream} videoStream={videoStream} />
+          <div className="absolute w-full h-full top-0 left-0 flex justify-center items-center text-center">
+            {!videoStream && (
+              <span className="w-3/5 font-semibold">
+                Please provide Camera access if you want others to see you in
+                the call
+              </span>
+            )}
+            {videoStream && !isCamEnabled && (
+              <span className="w-3/5 font-semibold">Camera is turned off</span>
+            )}
+          </div>
+
           <div className="relative w-full flex justify-center bottom-20 gap-6">
             <MicControl />
             <CamControl />
