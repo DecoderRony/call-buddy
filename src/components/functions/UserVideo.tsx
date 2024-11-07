@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode } from "react";
 import { FaMicrophoneSlash, FaVideoSlash } from "react-icons/fa6";
 import Video from "../ui/Video";
 
