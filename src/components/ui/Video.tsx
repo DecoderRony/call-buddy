@@ -50,11 +50,15 @@ function Video({
 
       // Video is wider than container - set height to match container
       if (videoAspect > containerAspect) {
-        setVideoSizeClass("w-auto h-full");
+        setVideoSizeClass(
+          `w-auto h-[${videoContainerRef.current.clientHeight}px]`
+        );
       }
       // Video is taller than container - set width to match container
       else {
-        setVideoSizeClass("w-full h-auto");
+        setVideoSizeClass(
+          `w-[${videoContainerRef.current.clientWidth}px] h-auto`
+        );
       }
     };
 
@@ -90,7 +94,7 @@ function Video({
         ref={videoRef}
         playsInline
         autoPlay
-        className={`w-auto object-cover ${videoSizeClass} ${videoClassName}`}
+        className={`object-cover ${videoSizeClass} ${videoClassName}`}
         {...rest}
       />
     </div>
