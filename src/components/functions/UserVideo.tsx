@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useRef } from "react";
 import { FaMicrophoneSlash, FaVideoSlash } from "react-icons/fa6";
+import Video from "../ui/Video";
 
 function getInitials(name: string | null) {
   if (!name) return "";
@@ -71,10 +72,9 @@ function UserVideo({
   videoClassName,
   ...rest
 }: Readonly<UserVideoProps>) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const widthClass = width ? `w-[${width}px]` : "w-full";
   const heightClass = height ? `h-[${height}px]` : "h-full";
-  
+
   let stream: MediaStream | null;
   if ("stream" in rest && rest.stream) {
     stream = rest.stream;
@@ -87,20 +87,14 @@ function UserVideo({
       stream.addTrack(rest.videoStream.getVideoTracks()[0]);
     }
   }
-  
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }, [stream, isCamEnabled]);
-  
+
   const backgroundClass = {
     lighter: "bg-zinc-600",
     light: "bg-zinc-700",
     dark: "bg-gray-700",
     darker: "bg-neutral-800",
   }[backgroundColor ?? "lighter"];
-  
+
   return (
     <div
       className={
@@ -109,16 +103,15 @@ function UserVideo({
       }
     >
       {isCamEnabled ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          className={"h-full w-full object-cover " + videoClassName}
-          {...rest}
-        />
+        <Video stream={stream} className={videoClassName} />
       ) : (
-        <div className={`h-full w-full flex justify-center items-center ${backgroundClass} `}>
-          <div className="h-1/2 flex justify-center items-center aspect-square rounded-full bg-zinc-300">
-            <div className="text-6xl font-semibold text-neutral-600">{getInitials(name)}</div>
+        <div
+          className={`h-full w-full flex justify-center items-center ${backgroundClass} `}
+        >
+          <div className="max-h-36 h-1/2 flex justify-center items-center aspect-square rounded-full bg-zinc-300">
+            <div className="text-6xl font-semibold text-neutral-600">
+              {getInitials(name)}
+            </div>
           </div>
         </div>
       )}
