@@ -39,6 +39,7 @@ function Video({
     >
       <video
         ref={videoRef}
+        playsInline
         autoPlay
         className={"h-full w-full object-cover " + videoClassName}
         {...rest}
