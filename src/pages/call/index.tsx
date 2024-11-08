@@ -6,8 +6,8 @@ import { getToast } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CallInfo from "./CallInfo";
-import CallRoomScreen from "./CallRoomScreen";
-import CallStarterScreen from "./CallStarterScreen";
+import CallRoomScreen from "./call-room-screen";
+import CallStarterScreen from "./call-starter-screen";
 import logger from "@/lib/loggerService";
 
 function CallPage() {

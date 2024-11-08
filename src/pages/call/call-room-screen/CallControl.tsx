@@ -2,8 +2,8 @@ import CamControl from "@/components/functions/CamControl";
 import MicControl from "@/components/functions/MicControl";
 import { FaPhoneSlash } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
-import callService from "../../lib/callService";
+import Button from "../../../components/ui/Button";
+import callService from "../../../lib/callService";
 import { useState } from "react";
 import Loading from "@/components/ui/Loading";
 
