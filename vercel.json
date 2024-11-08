@@ -1,8 +1,1 @@
-{
-    "rewrites": [
-      {
-        "source": "^/(call/[^/]+)?$",
-        "destination": "/index.html"
-      }
-    ]
-  }
+{ "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
