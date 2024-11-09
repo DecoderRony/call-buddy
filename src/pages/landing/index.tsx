@@ -74,11 +74,11 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-3 w-full text-center">
+      <footer className="absolute bottom-3 w-full text-center">
         <h3 className="text-base font-semibold text-neutral-400">
           Made with &nbsp;&#10084;&nbsp; by HJ & AD
         </h3>
-      </div>
+      </footer>
     </div>
   );
 };

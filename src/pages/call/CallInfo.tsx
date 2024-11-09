@@ -32,7 +32,7 @@ function CallInfo() {
   };
 
   return (
-    <div className="pl-5 flex items-center justify-between md:justify-start gap-5">
+    <div className="pl-3 flex items-center justify-between md:justify-start gap-5">
       <span className="text-3xl font-semibold">{callName}</span>
       <div className="hidden md:block border-neutral-500 border-r-2 h-full"></div>
       <div className="hidden md:flex flex-col text-neutral-500">
