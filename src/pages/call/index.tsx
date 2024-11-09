@@ -9,6 +9,7 @@ import CallInfo from "./CallInfo";
 import CallRoomScreen from "./call-room-screen";
 import CallStarterScreen from "./call-starter-screen";
 import logger from "@/lib/loggerService";
+import Button from "@/components/ui/Button";
 
 function CallPage() {
   const navigate = useNavigate();
@@ -19,6 +20,27 @@ function CallPage() {
 
   const [loading, setLoading] = useState(true);
   const [callExists, setCallExists] = useState(false);
+  const [userLeaving, setUserLeaving] = useState(false);
+  const [userNameBackup, setUserNameBackup] = useState<string>(); // required for call rejoin
+
+  const setupCall = async () => {
+    try {
+      const isCallExists = await callService.callExists(callId);
+      if (isCallExists) {
+        setTimeout(async () => {
+          setLoading(false);
+          setCallExists(true);
+        }, 1000);
+      } else {
+        showToast(getToast("INVALID_CALL_LINK"));
+        setLoading(false);
+        navigate("/");
+      }
+    } catch (err) {
+      showToast(getToast("UNABLE_TO_JOIN_CALL"));
+      navigate("/");
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -27,46 +49,41 @@ function CallPage() {
         navigate("/");
         return;
       }
-
-      try {
-        const isCallExists = await callService.callExists(callId);
-        if (isCallExists) {
-          setTimeout(async () => {
-            setLoading(false);
-            setCallExists(true);
-          }, 1000);
-        } else {
-          showToast(getToast("INVALID_CALL_LINK"));
-          setLoading(false);
-          navigate("/");
-        }
-      } catch (err) {
-        showToast(getToast("UNABLE_TO_JOIN_CALL"));
-        navigate("/");
-      }
+      setupCall();
     };
+
     init();
-    // window.addEventListener("beforeunload", cleanupOnUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       logger.debug("Call page component unmounted. Leaving call");
       callService.endCall();
-      // window.removeEventListener("beforeunload", cleanupOnUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
-  // const cleanupOnUnload = () => {
-  //   logger.debug("cleaning up on unload");
-  //   callService.endCall();
-  // };
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    logger.debug("cleaning up on unload");
+    e.preventDefault();
+
+    const inCall = useCallStore.getState().isInCall;
+    if (inCall) {
+      callService.endCall();
+      setUserLeaving(true);
+    }
+    return "";
+  };
 
   const handleJoin = async (userName: string) => {
     try {
       if (!callId) {
+        showToast(getToast("UNABLE_TO_JOIN_CALL"));
+        navigate("/");
         return;
       }
 
       setLoading(true);
+      setUserNameBackup(userName);
       setTimeout(async () => {
         setParticipantName(userName);
 
@@ -82,6 +99,29 @@ function CallPage() {
       navigate("/");
     }
   };
+
+  if (userLeaving) {
+    return (
+      <div className="h-dvh flex flex-col items-center justify-center gap-4">
+        <p className="text-2xl font-bold text-center">
+          It looks like you left the call.
+        </p>
+        <Button
+          onClick={() => {
+            setUserLeaving(false);
+            if (userNameBackup) {
+              setupCall();
+              handleJoin(userNameBackup);
+            } else {
+              navigate("/");
+            }
+          }}
+        >
+          Rejoin
+        </Button>
+      </div>
+    );
+  }
 
   if (loading && callExists) {
     return <Loading text="Joining call" />;
