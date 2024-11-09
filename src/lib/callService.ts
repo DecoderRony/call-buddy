@@ -264,14 +264,8 @@ class CallService {
         otherParticipantId,
         otherParticipantData
       );
-      setParticipantMic(
-        otherParticipantId,
-        otherParticipantData?.isMicEnabled || true
-      );
-      setParticipantCam(
-        otherParticipantId,
-        otherParticipantData?.isCamEnabled || true
-      );
+      setParticipantMic(otherParticipantId, otherParticipantData?.isMicEnabled);
+      setParticipantCam(otherParticipantId, otherParticipantData?.isCamEnabled);
       addParticipantName(otherParticipantId, otherParticipantData?.name);
     }
 
@@ -819,8 +813,8 @@ class CallService {
       if (participantDoc) {
         await deleteDoc(participantDoc); // Remove your participant entry from Firebase
       }
+      logger.info(`Removed participant ${participantId} from call`);
     }
-    logger.info(`Removed participant ${participantId} from call`);
 
     // 5. Reset the state and UI
     setAudioStream(null);
@@ -833,6 +827,8 @@ class CallService {
     this.participantsCollection = undefined;
     this.joinedAt = null;
     setIsInCall(false);
+
+    logger.debug("leaving endCall");
   }
 }
 
