@@ -25,6 +25,10 @@ function CallPage() {
 
   const setupCall = async () => {
     try {
+      if (!callId) {
+        return;
+      }
+
       const isCallExists = await callService.callExists(callId);
       if (isCallExists) {
         setTimeout(async () => {
