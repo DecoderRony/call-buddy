@@ -35,6 +35,8 @@ const App = () => {
       screen.availWidth < 1024
     ) {
       setIsLandscape(true);
+    } else {
+      setIsLandscape(false);
     }
   };
 
@@ -58,14 +60,11 @@ const App = () => {
     return <NetworkDisabled />;
   }
 
-  if (isLandscape) {
-    return <LandscapeNotice />;
-  }
-
   return (
     <>
       <RouterProvider router={router} />
       <Toaster position="top-right" richColors duration={6000} />
+      {isLandscape && <LandscapeNotice />}
     </>
   );
 };
