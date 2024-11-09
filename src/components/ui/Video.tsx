@@ -61,6 +61,16 @@ function Video({
     );
   };
 
+  const handleContainerResize = (entries: ResizeObserverEntry[]) => {
+    for (let entry of entries) {
+      const { width, height } = entry.contentRect;
+      setContainerRect({
+        width: width,
+        height: height,
+      });
+    }
+  };
+
   useLayoutEffect(() => {
     // If height and width given use it
     if (height && width) {
@@ -72,14 +82,14 @@ function Video({
     }
 
     // Find out height and width
+    const resizeObserver = new ResizeObserver(handleContainerResize);
     if (videoContainerRef.current) {
-      const { width: containerWidth, height: containerHeight } =
-        videoContainerRef.current.getBoundingClientRect();
-      setContainerRect({
-        width: containerWidth,
-        height: containerHeight,
-      });
+      resizeObserver.observe(videoContainerRef.current);
     }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   useLayoutEffect(() => {

@@ -19,12 +19,23 @@ function SelfVideoPreview() {
   const [containerRect, setContainerRect] = useState<ContainerRect>();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      const { width, height, top, left } =
-        containerRef.current.getBoundingClientRect();
+  const handleContainerResize = (entries: ResizeObserverEntry[]) => {
+    for (let entry of entries) {
+      const { width, height, top, left } = entry.contentRect;
       setContainerRect({ width, height, top, left });
     }
+  };
+
+  useLayoutEffect(() => {
+    const resizeObserver = new ResizeObserver(handleContainerResize);
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   return (
