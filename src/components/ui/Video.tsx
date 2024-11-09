@@ -1,4 +1,3 @@
-import { isMobileBrowser } from "@/lib/utils";
 import React, { useLayoutEffect, useRef, useState } from "react";
 
 interface ContainerRect {
@@ -30,66 +29,37 @@ function Video({
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const [combinedStream, setCombinedStream] = useState<MediaStream>();
   const [containerRect, setContainerRect] = useState<ContainerRect>();
   const [videoHeightStyle, setVideoHeightStyle] = useState<any>();
   const [videoWidthStyle, setVideoWidthStyle] = useState<any>();
 
-  const adjustVideoSize = (stream: MediaStream) => {
-    if (!videoRef.current || !containerRect) {
+  const adjustVideoSize = (videoWidth: number, videoHeight: number) => {
+    if (!containerRect) {
       return;
     }
 
-    const { width: videoWidth, height: videoHeight } = stream
-      .getVideoTracks()[0]
-      .getSettings();
-
-    // If stream details not available
-    if (!videoWidth || !videoHeight) {
-      // potrait stream
-      if (isMobileBrowser()) {
-        setVideoHeightStyle("auto");
-        setVideoWidthStyle(containerRect.width);
-      }
-      // landscape stream
-      else {
-        setVideoHeightStyle(containerRect.height);
-        setVideoWidthStyle("auto");
-      }
-    }
     // adjust size based on stream and container aspect
-    else {
-      const videoAspect = videoWidth / videoHeight;
-      const containerAspect = containerRect.width / containerRect.height;
+    const videoAspect = videoWidth / videoHeight;
+    const containerAspect = containerRect.width / containerRect.height;
 
+    if (videoAspect > containerAspect) {
       // Video is wider than container - set height to match container
-      if (videoAspect > containerAspect) {
-        setVideoHeightStyle(containerRect.height);
-        setVideoWidthStyle("auto");
-      }
+      setVideoHeightStyle(containerRect.height);
+      setVideoWidthStyle("auto");
+    } else {
       // Video is taller than container - set width to match container
-      else {
-        setVideoHeightStyle("auto");
-        setVideoWidthStyle(containerRect.width);
-      }
+      setVideoHeightStyle("auto");
+      setVideoWidthStyle(containerRect.width);
     }
   };
 
-  useLayoutEffect(() => {
-    if (videoRef.current) {
-      let combinedStream: MediaStream;
-      if (stream) {
-        combinedStream = stream;
-      } else {
-        const stream = new MediaStream();
-        if (audioStream) stream.addTrack(audioStream.getAudioTracks()[0]);
-        if (videoStream) stream.addTrack(videoStream.getVideoTracks()[0]);
-        combinedStream = stream;
-      }
-
-      adjustVideoSize(combinedStream);
-      videoRef.current.srcObject = combinedStream;
-    }
-  }, [audioStream, videoStream, stream]);
+  const handleVideoResize = () => {
+    adjustVideoSize(
+      videoRef.current?.videoWidth ?? 0,
+      videoRef.current?.videoHeight ?? 0
+    );
+  };
 
   useLayoutEffect(() => {
     // If height and width given use it
@@ -112,6 +82,27 @@ function Video({
     }
   }, []);
 
+  useLayoutEffect(() => {
+    if (stream) {
+      setCombinedStream(stream);
+    } else {
+      const stream = new MediaStream();
+      if (audioStream) stream.addTrack(audioStream.getAudioTracks()[0]);
+      if (videoStream) stream.addTrack(videoStream.getVideoTracks()[0]);
+      setCombinedStream(stream);
+    }
+  }, [audioStream, videoStream, stream]);
+
+  useLayoutEffect(() => {
+    if (videoRef.current && combinedStream) {
+      adjustVideoSize(
+        videoRef.current.videoWidth,
+        videoRef.current.videoHeight
+      );
+      videoRef.current.srcObject = combinedStream;
+    }
+  }, [containerRect, combinedStream]);
+
   return (
     <div
       ref={videoContainerRef}
@@ -126,6 +117,7 @@ function Video({
     >
       <video
         ref={videoRef}
+        onResize={handleVideoResize}
         playsInline
         autoPlay
         style={{

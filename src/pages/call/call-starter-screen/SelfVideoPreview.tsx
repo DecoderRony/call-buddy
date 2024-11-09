@@ -27,7 +27,6 @@ function SelfVideoPreview() {
     }
   }, []);
 
-  console.log("container rect", containerRef.current, containerRect);
   return (
     <div ref={containerRef} className="relative w-full h-full">
       <Video

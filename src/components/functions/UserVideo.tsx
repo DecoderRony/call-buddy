@@ -33,7 +33,7 @@ interface InfoTextProps {
 function InfoText({ text }: Readonly<InfoTextProps>) {
   return (
     <div className="rounded-lg bg-[rgba(0,0,0,0.4)] flex justify-center items-center p-1 px-3">
-      {text}
+      <span className="line-clamp-1">{text}</span>
     </div>
   );
 }
@@ -72,9 +72,6 @@ function UserVideo({
   videoClassName,
   ...rest
 }: Readonly<UserVideoProps>) {
-  const widthClass = width ? `w-[${width}px]` : "w-full";
-  const heightClass = height ? `h-[${height}px]` : "h-full";
-
   let stream: MediaStream | null;
   if ("stream" in rest && rest.stream) {
     stream = rest.stream;
@@ -98,18 +95,18 @@ function UserVideo({
   return (
     <div
       className={
-        `relative mx-auto container h-full rounded-lg overflow-hidden ${widthClass} ${heightClass} shadow-2xl ` +
+        `relative mx-auto container w-full h-full rounded-lg overflow-hidden shadow-2xl ` +
         className
       }
     >
       {isCamEnabled ? (
-        <Video stream={stream} className={videoClassName} />
+        <Video stream={stream} className={videoClassName} width={width} height={height} />
       ) : (
         <div
           className={`h-full w-full flex justify-center items-center ${backgroundClass} `}
         >
-          <div className="max-h-36 h-1/2 flex justify-center items-center aspect-square rounded-full bg-zinc-300">
-            <div className="text-6xl font-semibold text-neutral-600">
+          <div className="max-h-36 h-2/5 md:h-1/2 flex justify-center items-center aspect-square rounded-full bg-zinc-300">
+            <div className="text-[300%] font-semibold text-neutral-600">
               {getInitials(name)}
             </div>
           </div>
@@ -122,7 +119,7 @@ function UserVideo({
         </div>
       )}
       {name && (
-        <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 max-sm:text-xs">
+        <div className="absolute bottom-2 left-2 max-w-[85%] sm:bottom-4 sm:left-4 max-sm:text-xs">
           <InfoText text={name} />
         </div>
       )}

@@ -22,7 +22,7 @@ function ParticipantsVideos() {
       className={`h-5/6 sm:h-full pt-8 pb-3 px-5 sm:px-16 gap-4 grid justify-center items-center ${gridClasses}`}
     >
       {noOfParticipants === 0 && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-semibold text-neutral-500">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-semibold text-center text-neutral-400">
           There's no one else here. Invite your friends to join!
         </div>
       )}
