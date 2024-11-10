@@ -6,6 +6,7 @@ import Button from "../../../components/ui/Button";
 import callService from "../../../lib/callService";
 import { useState } from "react";
 import Loading from "@/components/ui/Loading";
+import NoiseSupressionControl from "@/components/functions/NoiseSupressionControl";
 
 function CallControl() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ function CallControl() {
 
   return (
     <div className="flex justify-center gap-4">
+      <NoiseSupressionControl />
       <MicControl />
       <CamControl />
 

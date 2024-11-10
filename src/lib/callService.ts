@@ -480,7 +480,11 @@ class CallService {
     try {
       const setAudioStream = useCallStore.getState().setAudioStream;
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
 
       setAudioStream(stream);
