@@ -55,6 +55,7 @@ interface UserVideoOtherProps {
   height?: number;
   videoClassName?: string;
   backgroundColor?: "lighter" | "light" | "dark" | "darker";
+  muted?: boolean;
 }
 
 type UserVideoProps =
@@ -70,6 +71,7 @@ function UserVideo({
   className,
   backgroundColor,
   videoClassName,
+  muted = false,
   ...rest
 }: Readonly<UserVideoProps>) {
   let stream: MediaStream | null;
@@ -100,7 +102,13 @@ function UserVideo({
       }
     >
       {isCamEnabled ? (
-        <Video stream={stream} className={videoClassName} width={width} height={height} />
+        <Video
+          stream={stream}
+          className={videoClassName}
+          width={width}
+          height={height}
+          muted={muted}
+        />
       ) : (
         <div
           className={`h-full w-full flex justify-center items-center ${backgroundClass} `}

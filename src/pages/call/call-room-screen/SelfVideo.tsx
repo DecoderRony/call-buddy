@@ -17,6 +17,7 @@ function SelfVideo() {
         isMicEnabled={isMicEnabled}
         isCamEnabled={isCamEnabled}
         backgroundColor="lighter"
+        muted={true}
       />
     </div>
   );

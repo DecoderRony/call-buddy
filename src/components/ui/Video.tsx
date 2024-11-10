@@ -14,6 +14,7 @@ interface VideoProps extends React.HTMLAttributes<HTMLVideoElement> {
   width?: number;
   height?: number;
   videoClassName?: string;
+  muted?: boolean;
 }
 
 function Video({
@@ -24,6 +25,7 @@ function Video({
   height,
   className,
   videoClassName,
+  muted = false,
   ...rest
 }: Readonly<VideoProps>) {
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -85,6 +87,12 @@ function Video({
     const resizeObserver = new ResizeObserver(handleContainerResize);
     if (videoContainerRef.current) {
       resizeObserver.observe(videoContainerRef.current);
+    }
+
+    // set muted
+    if (videoRef.current) {
+      videoRef.current.muted = muted;
+      videoRef.current.defaultMuted = muted;
     }
 
     return () => {
