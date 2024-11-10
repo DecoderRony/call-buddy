@@ -1,7 +1,7 @@
 import { useCallStore } from "@/lib/callStore";
-import React, { useLayoutEffect, useState } from "react";
-import Button from "../ui/Button";
+import { useLayoutEffect, useState } from "react";
 import { MdNoiseAware, MdNoiseControlOff } from "react-icons/md";
+import Button from "../ui/Button";
 
 function NoiseSupressionControl() {
   const audioStream = useCallStore((state) => state.audioStream);
