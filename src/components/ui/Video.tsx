@@ -1,11 +1,9 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
-
-interface ContainerRect {
-  width: number;
-  height: number;
-  top?: number;
-  left?: number;
-}
+import React, {
+  useLayoutEffect,
+  useRef,
+  useState
+} from "react";
+import { useResizeDetector } from "react-resize-detector";
 
 interface VideoProps extends React.HTMLAttributes<HTMLVideoElement> {
   stream?: MediaStream | null;
@@ -28,18 +26,26 @@ function Video({
   muted = false,
   ...rest
 }: Readonly<VideoProps>) {
-  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const { ref: videoContainerRef } = useResizeDetector({
+    refreshMode: "debounce",
+    refreshRate: 200,
+    onResize: () => {
+      adjustVideoSize();
+    },
+  });
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [combinedStream, setCombinedStream] = useState<MediaStream>();
-  const [containerRect, setContainerRect] = useState<ContainerRect>();
   const [videoHeightStyle, setVideoHeightStyle] = useState<any>();
   const [videoWidthStyle, setVideoWidthStyle] = useState<any>();
 
-  const adjustVideoSize = (videoWidth: number, videoHeight: number) => {
-    if (!containerRect) {
+  const adjustVideoSize = () => {
+    const containerRect = videoContainerRef.current?.getBoundingClientRect();
+    if (!videoRef.current || !containerRect) {
       return;
     }
+
+    const videoWidth = videoRef.current.videoWidth;
+    const videoHeight = videoRef.current.videoHeight;
 
     // adjust size based on stream and container aspect
     const videoAspect = videoWidth / videoHeight;
@@ -56,70 +62,30 @@ function Video({
     }
   };
 
-  const handleVideoResize = () => {
-    adjustVideoSize(
-      videoRef.current?.videoWidth ?? 0,
-      videoRef.current?.videoHeight ?? 0
-    );
-  };
-
-  const handleContainerResize = (entries: ResizeObserverEntry[]) => {
-    for (let entry of entries) {
-      const { width, height } = entry.contentRect;
-      setContainerRect({
-        width: width,
-        height: height,
-      });
-    }
-  };
-
   useLayoutEffect(() => {
-    // If height and width given use it
-    if (height && width) {
-      setContainerRect({
-        width: width,
-        height: height,
-      });
-      return;
-    }
-
-    // Find out height and width
-    const resizeObserver = new ResizeObserver(handleContainerResize);
-    if (videoContainerRef.current) {
-      resizeObserver.observe(videoContainerRef.current);
-    }
-
     // set muted
     if (videoRef.current) {
       videoRef.current.muted = muted;
       videoRef.current.defaultMuted = muted;
     }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
   }, []);
 
   useLayoutEffect(() => {
-    if (stream) {
-      setCombinedStream(stream);
-    } else {
-      const stream = new MediaStream();
-      if (audioStream) stream.addTrack(audioStream.getAudioTracks()[0]);
-      if (videoStream) stream.addTrack(videoStream.getVideoTracks()[0]);
-      setCombinedStream(stream);
-    }
-  }, [audioStream, videoStream, stream]);
+    if (videoRef.current) {
+      let combinedStream: MediaStream;
+      if (stream) {
+        combinedStream = stream;
+      } else {
+        const stream = new MediaStream();
+        if (audioStream) stream.addTrack(audioStream.getAudioTracks()[0]);
+        if (videoStream) stream.addTrack(videoStream.getVideoTracks()[0]);
+        combinedStream = stream;
+      }
 
-  useLayoutEffect(() => {
-    if (videoRef.current && combinedStream) {
-      adjustVideoSize(
-        videoRef.current.videoWidth,
-        videoRef.current.videoHeight
-      );
+      adjustVideoSize();
       videoRef.current.srcObject = combinedStream;
     }
-  }, [containerRect, combinedStream]);
+  }, [audioStream, videoStream, stream]);
 
   return (
     <div
@@ -135,7 +101,7 @@ function Video({
     >
       <video
         ref={videoRef}
-        onResize={handleVideoResize}
+        onResize={() => adjustVideoSize()}
         playsInline
         autoPlay
         style={{
