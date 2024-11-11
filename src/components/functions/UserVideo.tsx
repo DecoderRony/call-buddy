@@ -1,6 +1,8 @@
 import React, { ReactNode } from "react";
 import { FaMicrophoneSlash, FaVideoSlash } from "react-icons/fa6";
 import Video from "../ui/Video";
+import InfoIcon from "../ui/InfoIcon";
+import InfoText from "../ui/InfoText";
 
 function getInitials(name: string | null) {
   if (!name) return "";
@@ -12,30 +14,6 @@ function getInitials(name: string | null) {
     initials += word.charAt(0).toUpperCase();
   }
   return initials;
-}
-
-interface InfoIconProps {
-  icon: ReactNode;
-}
-
-function InfoIcon({ icon }: Readonly<InfoIconProps>) {
-  return (
-    <div className="rounded-full bg-[rgba(0,0,0,0.4)] flex justify-center items-center p-2">
-      {icon}
-    </div>
-  );
-}
-
-interface InfoTextProps {
-  text: string;
-}
-
-function InfoText({ text }: Readonly<InfoTextProps>) {
-  return (
-    <div className="rounded-lg bg-[rgba(0,0,0,0.4)] flex justify-center items-center p-1 px-3">
-      <span className="line-clamp-1">{text}</span>
-    </div>
-  );
 }
 
 interface UserOneStreamProps extends React.HTMLAttributes<HTMLVideoElement> {
@@ -55,6 +33,7 @@ interface UserVideoOtherProps {
   height?: number;
   videoClassName?: string;
   backgroundColor?: "lighter" | "light" | "dark" | "darker";
+  optionsComponent?: ReactNode;
   muted?: boolean;
 }
 
@@ -71,6 +50,7 @@ function UserVideo({
   className,
   backgroundColor,
   videoClassName,
+  optionsComponent,
   muted = false,
   ...rest
 }: Readonly<UserVideoProps>) {
@@ -94,6 +74,7 @@ function UserVideo({
     darker: "bg-neutral-800",
   }[backgroundColor ?? "lighter"];
 
+  console.log("rerendering user video");
   return (
     <div
       className={
@@ -129,6 +110,11 @@ function UserVideo({
       {name && (
         <div className="absolute bottom-2 left-2 max-w-[85%] sm:bottom-4 sm:left-4 max-sm:text-xs">
           <InfoText text={name} />
+        </div>
+      )}
+      {optionsComponent && (
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4">
+          {optionsComponent}
         </div>
       )}
     </div>

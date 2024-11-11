@@ -68,7 +68,7 @@ function Video({
       videoRef.current.muted = muted;
       videoRef.current.defaultMuted = muted;
     }
-  }, []);
+  }, [muted]);
 
   useLayoutEffect(() => {
     if (videoRef.current) {

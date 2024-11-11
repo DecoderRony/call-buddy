@@ -1,21 +1,48 @@
 import UserVideo from "@/components/functions/UserVideo";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import InfoIcon from "@/components/ui/InfoIcon";
 import { useCallStore } from "@/lib/callStore";
-import { useRef } from "react";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
+import { useRef, useState } from "react";
+import { HiDotsVertical } from "react-icons/hi";
 
 function ParticipantsVideos() {
   const participants = useCallStore((state) => state.participants);
   const noOfParticipants = Object.keys(participants).length;
   const parentVideoContainerRef = useRef<HTMLDivElement>(null);
+  const [mutedParticipants, setMutedParticipants] = useState<
+    Record<string, boolean>
+  >(
+    Object.keys(participants).reduce(
+      (finalObj, participantId) => ({ ...finalObj, [participantId]: false }),
+      {}
+    )
+  );
+
+  const toggleMute = (participantId: string) => {
+    setTimeout(() => {
+      setMutedParticipants((prev) => ({
+        ...prev,
+        [participantId]: !prev[participantId],
+      }));
+    }, 100);
+  };
 
   let gridClasses;
   if (noOfParticipants < 2) {
     gridClasses = "grid grid-cols-1 auto-rows-fr justify-center items-center";
   } else if (noOfParticipants === 2) {
-    gridClasses = "grid grid-cols-1 lg:grid-cols-2 auto-rows-fr justify-center items-center";
+    gridClasses =
+      "grid grid-cols-1 lg:grid-cols-2 auto-rows-fr justify-center items-center";
   } else {
-    gridClasses = "grid grid-cols-2 auto-rows-fr justify-center justify-items-center items-center";
+    gridClasses =
+      "grid grid-cols-2 auto-rows-fr justify-center justify-items-center items-center";
   }
-
+  console.log("rerendering");
   return (
     <div
       ref={parentVideoContainerRef}
@@ -35,6 +62,19 @@ function ParticipantsVideos() {
           isCamEnabled={participants[participantId].isCamEnabled}
           backgroundColor="light"
           className="w-full" // Adjusts each video width based on screen size
+          muted={mutedParticipants[participantId]}
+          optionsComponent={
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <InfoIcon icon={<HiDotsVertical />}></InfoIcon>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onSelect={() => toggleMute(participantId)}>
+                  {mutedParticipants[participantId] ? "Unmute" : "Mute"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
         />
       ))}
     </div>
