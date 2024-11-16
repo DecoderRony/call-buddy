@@ -23,6 +23,34 @@ function CallPage() {
   const [userLeaving, setUserLeaving] = useState(false);
   const [userNameBackup, setUserNameBackup] = useState<string>(); // required for call rejoin
 
+  const checkMediaPermissions = async () => {
+    // check microphone status
+    try {
+      // typecasted to "push" to avoid typerror. This is a known issue of lacking permission names
+      const status = await navigator.permissions.query({
+        name: "microphone" as "push",
+      });
+      if (status?.state === "granted") {
+        callService.getAudioStream();
+      }
+    } catch (err) {
+      logger.error("Error while getting microphone permission status", err);
+    }
+
+    // check camera status
+    try {
+      // typecasted to "push" to avoid typerror. This is a known issue of lacking permission names
+      const status = await navigator.permissions.query({
+        name: "camera" as "push",
+      });
+      if (status?.state === "granted") {
+        callService.getVideoStream();
+      }
+    } catch (err) {
+      logger.error("Error while getting camera permission status", err);
+    }
+  };
+
   const setupCall = async () => {
     try {
       if (!callId) {
@@ -53,6 +81,8 @@ function CallPage() {
         navigate("/");
         return;
       }
+
+      checkMediaPermissions();
       setupCall();
     };
 
