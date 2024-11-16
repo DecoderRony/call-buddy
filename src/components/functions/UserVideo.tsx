@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { FaMicrophoneSlash, FaVideoSlash } from "react-icons/fa6";
 import Video from "../ui/Video";
+import Audio from "../ui/Audio";
 import InfoIcon from "../ui/InfoIcon";
 import InfoText from "../ui/InfoText";
 
@@ -99,6 +100,7 @@ function UserVideo({
               {getInitials(name)}
             </div>
           </div>
+          {isMicEnabled && <Audio stream={stream} muted={muted} />}
         </div>
       )}
       {(!isMicEnabled || !isCamEnabled) && (
