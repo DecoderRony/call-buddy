@@ -492,13 +492,13 @@ class CallService {
       logger.debug("leaving getAudioStream");
     } catch (error: any) {
       if (error.name === "NotAllowedError") {
-        logger.error("audio stream permission denied. leaving getAudioStream");
+        logger.error("audio stream permission denied. leaving getAudioStream", error);
         return {
           error: true,
           type: "ACCESS_DENIED",
         };
       } else {
-        logger.error("no audio device found. leaving getAudioStream");
+        logger.error("no audio device found. leaving getAudioStream", error);
         return {
           error: true,
           type: "NOT_FOUND",
@@ -521,13 +521,13 @@ class CallService {
       logger.debug("leaving getVideoStream");
     } catch (error: any) {
       if (error.name === "NotAllowedError") {
-        logger.error("video stream permission denied. leaving getVideoStream");
+        logger.error("video stream permission denied. leaving getVideoStream", error);
         return {
           error: true,
           type: "ACCESS_DENIED",
         };
       } else {
-        logger.error("no video device found. leaving getVideoStream");
+        logger.error("no video device found. leaving getVideoStream", error);
         return {
           error: true,
           type: "NOT_FOUND",
@@ -576,7 +576,7 @@ class CallService {
           message: "Mic status changed",
         };
       } catch (err) {
-        logger.error("could not update in DB. leaving toggleMic");
+        logger.error("could not update in DB. leaving toggleMic", err);
         return {
           status: "error",
           message: "Could not update in DB",
@@ -625,7 +625,7 @@ class CallService {
           message: "Cam status changed",
         };
       } catch (err) {
-        logger.error("could not update in DB. leaving toggleCam");
+        logger.error("could not update in DB. leaving toggleCam", err);
         return {
           status: "error",
           message: "Could not update in DB",

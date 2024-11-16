@@ -51,6 +51,14 @@ export const createDummyMediaStream = () => {
   return dummyStream;
 };
 
+export const removeUndefinedFields = (obj: Record<string, any>) => {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
+  });
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

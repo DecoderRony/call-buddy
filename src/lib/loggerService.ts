@@ -1,12 +1,13 @@
 import { firestore } from "@/config/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { useCallStore } from "./callStore";
+import { removeUndefinedFields } from "./utils";
 
 class Logger {
   private readonly logsCollection = collection(firestore, "logs");
 
   private saveToDB(data: any) {
-    addDoc(this.logsCollection, {
+    const logDoc = {
       ...data,
       callId: useCallStore.getState().callId,
       callName: useCallStore.getState().callName,
@@ -14,14 +15,17 @@ class Logger {
       participantName: useCallStore.getState().participantName,
       deviceDetails: navigator.userAgent,
       createdAt: Date.now(),
-    });
+    };
+
+    removeUndefinedFields(logDoc);
+    addDoc(this.logsCollection, logDoc);
   }
 
   error(...args: any[]) {
     this.saveToDB({
       type: "error",
       message: args[0],
-      stack: args[1],
+      stack: args[1].toString(),
     });
 
     if (process.env.NODE_ENV !== "production") {
@@ -33,7 +37,7 @@ class Logger {
     this.saveToDB({
       type: "warn",
       message: args[0],
-      stack: args[1],
+      stack: args[1].toString(),
     });
 
     if (process.env.NODE_ENV !== "production") {
