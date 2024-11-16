@@ -1,7 +1,7 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import callService from "@/lib/callService";
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { FaKeyboard } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@/components/functions/Toast";
@@ -23,11 +23,22 @@ function JoinCall() {
     }
   };
 
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (callId.trim()) {
+        joinCall();
+      } else {
+        showToast(getToast("PROVIDE_NAME"));
+      }
+    }
+  };
+
   return (
     <div className={"w-72 2xl:w-auto flex flex-col 2xl:flex-row gap-3"}>
       <Input
         value={callId}
         type="text"
+        onKeyDown={handleInputKeyDown}
         placeholder="Enter Call Id"
         onChange={(e) => setCallId(e.target.value)}
         variant="dark"
@@ -37,6 +48,7 @@ function JoinCall() {
       <Input
         value={callId}
         type="text"
+        onKeyDown={handleInputKeyDown}
         placeholder="Enter Call Id"
         onChange={(e) => setCallId(e.target.value)}
         icon={<FaKeyboard size="1.5em" />}
