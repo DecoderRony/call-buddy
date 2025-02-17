@@ -1,50 +1,78 @@
-# React + TypeScript + Vite
+# Call Buddy
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div id="user-content-toc">
+  <ul style="list-style: none;">
+    <summary>
+      <h2>Connecting you seamlessly, anytime, anywhere.</h2>
+    </summary>
+  </ul>
+</div>
 
-Currently, two official plugins are available:
+Call Buddy is a high-performance video calling application built with **WebRTC** for real-time communication. It delivers crystal-clear video & audio, intuitive UI, and powerful features for effortless one-on-one and group calls. Its simple - no login, no account. Just create the call and connect. That's it. 🚀  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<br/>
 
-## Expanding the ESLint configuration
+## 🌟 Features  
+✅ **Real-Time Video & Audio Calls** – Ultra-low latency powered by **WebRTC**.  
+✅ **One-on-One & Group Calls** – Connect with multiple users in real time.  
+✅ **Call Controls** – Mute/unmute, toggle video, end calls with ease.  
+✅ **Modern UI** – Built with **ShadCN** and **Tailwind CSS** for a modern look.  
+✅ **Fast connections** – Firebase real time data transfers ensures blazing fast connections.  
+✅ **Real-Time Presence Indicators** – Know who’s online & available.  
+✅ **Optimized for Performance** – Lightning-fast UI with a responsive design.  
+✅ **No setup required** – Just create the call and connect. No account required.  
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+<br/>
 
-- Configure the top-level `parserOptions` property like this:
+## 🛠 Tech Stack  
+**Frontend:** 
+- React
+- ShadCN
+- Tailwind CSS
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+**Backend & Database:** 
+- Firebase (Firestore)
+    
+**Real-Time Communication:** 
+- WebRTC  
+
+**Deployment:** 
+- Vercel
+
+<br/>
+
+## ⚡ Setup Instructions  
+
+### 1️⃣ Clone the Repository  
+```bash
+git clone https://github.com/hj1x/call-buddy.git
+cd call-buddy
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+### 2️⃣ Install Dependencies
+```base
+npm i
 ```
+
+### 3️⃣ Set Up Firebase
+1. Create a Firebase project at Firebase Console.
+2. Enable Firestore.
+3. Add your Firebase config to .env file:
+   
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+```
+   
+### 4️⃣ Start the Development Server
+```bash
+npm run dev
+```
+
+<br/>
+
+## 🤝 Contributing
+Want to improve Call Buddy? Feel free to fork the repo, submit issues, or open a pull request!
+
+<br/>
+
+⭐ Love Call Buddy? Give this repo a star and help spread the word! 🌟
