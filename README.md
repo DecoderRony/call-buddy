@@ -10,6 +10,8 @@
 
 Call Buddy is a high-performance video calling application built with **WebRTC** for real-time communication. It delivers crystal-clear video & audio, intuitive UI, and powerful features for effortless one-on-one and group calls. Its simple - no login, no account. Just create the call and connect. That's it. 🚀  
 
+Preview link - https://call-buddy-two.vercel.app/
+
 <br/>
 
 ## 🌟 Features  
