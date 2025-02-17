@@ -32,6 +32,9 @@ Preview link - https://call-buddy-two.vercel.app/
 - ShadCN
 - Tailwind CSS
 
+**State Management:**
+- Zustand
+
 **Backend & Database:** 
 - Firebase (Firestore)
     
